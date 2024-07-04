@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 30,
     width: 90,
-    elevation: 15,
+    elevation: 10,
     marginTop: 3,
   },
   BtnText: {

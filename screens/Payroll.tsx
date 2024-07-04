@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
 import {
-    ActivityIndicator,
     Alert,
     Image,
     ScrollView,
@@ -9,18 +7,18 @@ import {
     Text,
     TouchableOpacity,
     View,
+    ActivityIndicator,
 } from 'react-native';
-
-import {NativeStackScreenProps} from '@react-navigation/native-stack'
-import FontAwesome from 'react-native-vector-icons/FontAwesome'
-import Feather from 'react-native-vector-icons/Feather'
-
-import {RootStackParamList} from '../App'
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Feather from 'react-native-vector-icons/Feather';
+import { RootStackParamList } from '../App';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDate } from '../components/DateContext';
 import { format } from 'date-fns';
 
-type PayrollProps = NativeStackScreenProps<RootStackParamList, 'Payroll'> 
+
+type PayrollProps = NativeStackScreenProps<RootStackParamList, 'Payroll'>;
 
 type Employee = {
     emp_id: number;
@@ -31,13 +29,11 @@ type Employee = {
     iconPM: string;
     tickColor: string;
     crossColor: string;
-  };
+};
 
-
-const Payroll = ({navigation}:PayrollProps) => {
-
+const Payroll = ({ navigation }: PayrollProps) => {
     const [employees, setEmployees] = useState<Employee[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true); // Loader state
     const { date } = useDate();
 
     useEffect(() => {
@@ -65,10 +61,10 @@ const Payroll = ({navigation}:PayrollProps) => {
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
-            setLoading(false);
+            setLoading(false); // Set loading to false once data is fetched
         }
     };
-    
+
     const resetEmployees = () => {
         setEmployees(prevEmployees =>
             prevEmployees.map(emp => ({
@@ -107,7 +103,7 @@ const Payroll = ({navigation}:PayrollProps) => {
                 const json = await response.json();
                 console.log('Response from server:', json);
                 Alert.alert('Success', 'Attendance updated successfully');
-                fetchEmployees(); // Reset the employees list to the initial state
+                resetEmployees() // Reset the employees list to the initial state
             } else {
                 throw new Error('Failed to submit data');
             }
@@ -181,7 +177,7 @@ const Payroll = ({navigation}:PayrollProps) => {
 
     return (
         <SafeAreaView style={styles.bg1}>
-            {loading ? ( 
+            {loading ? ( // Display loader while fetching data
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
                 <ScrollView>
@@ -246,98 +242,86 @@ const Payroll = ({navigation}:PayrollProps) => {
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
-      justifyContent: 'center',
-      paddingHorizontal: 21,
+        flex: 1,
+        justifyContent: 'center',
+        paddingHorizontal: 21,
     },
-
-    cardviewBtnReset:{
+    cardviewBtnReset: {
         backgroundColor: 'red',
         borderRadius: 10,
-        height:40,
-        width:100,
-        elevation: 8
+        height: 40,
+        width: 100,
+        elevation: 8,
     },
-    cardviewBtnEdit:{
+    cardviewBtnEdit: {
         backgroundColor: 'orange',
         borderRadius: 10,
-        height:40,
-        width:100,
-        elevation: 8
+        height: 40,
+        width: 100,
+        elevation: 8,
     },
-    cardviewBtnSubmit:{
+    cardviewBtnSubmit: {
         backgroundColor: 'green',
         borderRadius: 10,
-        height:40,
-        width:100,
-        elevation: 8
+        height: 40,
+        width: 100,
+        elevation: 8,
     },
-
-    BtnText:{
-        textAlign:'center',
-        fontWeight:'bold',
-        color:'#ffffff',
-        paddingTop:8
+    BtnText: {
+        textAlign: 'center',
+        fontWeight: 'bold',
+        color: '#ffffff',
+        paddingTop: 8,
     },
-
-    Emp_card:{
+    Emp_card: {
         flexDirection: 'row',
-        alignItems:'center',
-        backgroundColor:'white',
+        alignItems: 'center',
+        backgroundColor: 'white',
         borderRadius: 6,
-        height:90,
+        height: 90,
         width: 330,
-        padding:10,
-        gap:15,
-        marginTop:8
+        padding: 10,
+        gap: 15,
+        marginTop: 8,
     },
-
-    btn_container:{
-        flexDirection:'row',
-        justifyContent:"space-around",
-        gap:12,
-        marginTop:8,
-        marginLeft:16,
-        width:329,
-        marginBottom:8
-        
+    btn_container: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        gap: 12,
+        marginTop: 8,
+        marginLeft: 16,
+        width: 329,
+        marginBottom: 8,
     },
-
-    list_container:{
+    list_container: {
         margin: 15,
-        marginTop:8,
-        gap:10,
+        marginTop: 8,
+        gap: 10,
         backgroundColor: '#D7FCF1',
         width: 360,
-        height: 'auto'
+        height: 'auto',
     },
-
-    Emp_image_style:{
-        height:70,
-        width:70,
-        borderRadius:35
+    Emp_image_style: {
+        height: 70,
+        width: 70,
+        borderRadius: 35,
     },
-
-    Emp_name_style:{
+    Emp_name_style: {
         color: 'black',
-        alignContent:'center',
-        fontFamily:'Poppins',
-        fontSize: 16
-
+        alignContent: 'center',
+        fontFamily: 'Poppins',
+        fontSize: 16,
     },
-
-    Emp_id_style:{
+    Emp_id_style: {
         color: '#6E6E6E',
-        alignContent:'center',
-        fontFamily:'Poppins',
-        fontSize: 16
-
+        alignContent: 'center',
+        fontFamily: 'Poppins',
+        fontSize: 16,
     },
-
     bg1: {
         backgroundColor: '#D7FCF1',
-        width: 360
-      }
+        width: 360,
+    },
 });
 
 export default Payroll;
