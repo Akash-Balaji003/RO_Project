@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import {
+    ActivityIndicator,
     Alert,
     Image,
     ScrollView,
@@ -16,6 +17,8 @@ import Feather from 'react-native-vector-icons/Feather'
 
 import {RootStackParamList} from '../App'
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDate } from '../components/DateContext';
+import { format } from 'date-fns';
 
 type PayrollProps = NativeStackScreenProps<RootStackParamList, 'Payroll'> 
 
@@ -34,6 +37,8 @@ type Employee = {
 const Payroll = ({navigation}:PayrollProps) => {
 
     const [employees, setEmployees] = useState<Employee[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { date } = useDate();
 
     useEffect(() => {
         fetchEmployees();
@@ -59,15 +64,30 @@ const Payroll = ({navigation}:PayrollProps) => {
             setEmployees(employeeData);
         } catch (error) {
             console.error('Error fetching data:', error);
+        } finally {
+            setLoading(false);
         }
+    };
+    
+    const resetEmployees = () => {
+        setEmployees(prevEmployees =>
+            prevEmployees.map(emp => ({
+                ...emp,
+                iconAM: 'square',
+                iconPM: 'square',
+                tickColor: 'grey',
+                crossColor: 'grey',
+            }))
+        );
     };
 
     const submitData = async () => {
         const currentDate = new Date().toISOString().split('T')[0];
+        const formattedDate = format(date, 'yyyy-MM-dd');
         const employeeData = employees.map(emp => ({
             Emp_id: emp.emp_id,
             Emp_name: emp.emp_name,
-            attendance_date: currentDate,
+            attendance_date: formattedDate,
             submitted_date: currentDate,
             Company_id: emp.Company_id,
             iconAM: emp.iconAM,
@@ -159,67 +179,70 @@ const Payroll = ({navigation}:PayrollProps) => {
         );
     };
 
-    return(
+    return (
         <SafeAreaView style={styles.bg1}>
-            <ScrollView>
-                <View style={styles.list_container}>
-                    {employees.map(({emp_id, emp_name, iconAM, iconPM, tickColor, crossColor, imageUrl})=> (
-                        <View key={emp_id} style={styles.Emp_card}>
-                            <Image
-                                source={require('/Users/akashbalaji/RO_Project/Frontend/images/test1.jpeg')}
-                                style={styles.Emp_image_style}
-                            />
-                            <View style={{width:80}}>
-                                <Text style={styles.Emp_name_style}>{emp_name}</Text>
-                                <View style={{flexDirection:'row', gap:4}}>
-                                    <Text style={styles.Emp_id_style}>Emp_id:</Text>
-                                    <Text style={styles.Emp_name_style}>{emp_id}</Text>
-                                </View>
-                            </View>
-                            <View style={{gap:5, marginLeft:65}}>
-                                <View style={{marginLeft:3, flexDirection:'row', gap:17, alignSelf:'flex-start'}}>
-                                <TouchableOpacity onPress={() => toggleTickColor(emp_id)}>
-                                        <FontAwesome name='check' size={28} color={tickColor} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => toggleCrossColor(emp_id)}>
-                                        <FontAwesome name='remove' size={28} color={crossColor} />
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={{marginTop:8}}>
-                                    <View style={{marginLeft:2, flexDirection:'row', gap:15, alignSelf:'flex-start'}}>
-                                        <TouchableOpacity onPress={() => toggleIconAM(emp_id)}>
-                                            <Feather name={iconAM} size={28} color="#000" />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => toggleIconPM(emp_id)}>
-                                            <Feather name={iconPM} size={28} color="#000" />
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View style={{marginLeft:5, flexDirection:'row', gap:22}}>
-                                        <Text style={{color:'black'}}>AM</Text>
-                                        <Text style={{color:'black'}}>PM</Text>
+            {loading ? ( 
+                <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+                <ScrollView>
+                    <View style={styles.list_container}>
+                        {employees.map(({ emp_id, emp_name, iconAM, iconPM, tickColor, crossColor, imageUrl }) => (
+                            <View key={emp_id} style={styles.Emp_card}>
+                                <Image
+                                    source={require('/Users/akashbalaji/RO_Project/Frontend/images/test1.jpeg')}
+                                    style={styles.Emp_image_style}
+                                />
+                                <View style={{ width: 80 }}>
+                                    <Text style={styles.Emp_name_style}>{emp_name}</Text>
+                                    <View style={{ flexDirection: 'row', gap: 4 }}>
+                                        <Text style={styles.Emp_id_style}>Emp_id:</Text>
+                                        <Text style={styles.Emp_name_style}>{emp_id}</Text>
                                     </View>
                                 </View>
+                                <View style={{ gap: 5, marginLeft: 65 }}>
+                                    <View style={{ marginLeft: 3, flexDirection: 'row', gap: 17, alignSelf: 'flex-start' }}>
+                                        <TouchableOpacity onPress={() => toggleTickColor(emp_id)}>
+                                            <FontAwesome name='check' size={28} color={tickColor} />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => toggleCrossColor(emp_id)}>
+                                            <FontAwesome name='remove' size={28} color={crossColor} />
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={{ marginTop: 8 }}>
+                                        <View style={{ marginLeft: 2, flexDirection: 'row', gap: 15, alignSelf: 'flex-start' }}>
+                                            <TouchableOpacity onPress={() => toggleIconAM(emp_id)}>
+                                                <Feather name={iconAM} size={28} color="#000" />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={() => toggleIconPM(emp_id)}>
+                                                <Feather name={iconPM} size={28} color="#000" />
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={{ marginLeft: 5, flexDirection: 'row', gap: 22 }}>
+                                            <Text style={{ color: 'black' }}>AM</Text>
+                                            <Text style={{ color: 'black' }}>PM</Text>
+                                        </View>
+                                    </View>
+                                </View>
                             </View>
-                        </View>
-                    ))}
+                        ))}
+                    </View>
 
-                </View>
-
-                <View style={styles.btn_container}>
-                    <TouchableOpacity style={styles.cardviewBtnReset}>
-                        <Text style={styles.BtnText}>Reset</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.cardviewBtnEdit}>
-                        <Text style={styles.BtnText}>Edit</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.cardviewBtnSubmit} onPress={submitData}>
-                        <Text style={styles.BtnText}>Submit</Text>
-                    </TouchableOpacity>
-                </View>                
-            </ScrollView>
+                    <View style={styles.btn_container}>
+                        <TouchableOpacity style={styles.cardviewBtnReset} onPress={resetEmployees}>
+                            <Text style={styles.BtnText}>Reset</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.cardviewBtnEdit}>
+                            <Text style={styles.BtnText}>Edit</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.cardviewBtnSubmit} onPress={submitData}>
+                            <Text style={styles.BtnText}>Submit</Text>
+                        </TouchableOpacity>
+                    </View>
+                </ScrollView>
+            )}
         </SafeAreaView>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
