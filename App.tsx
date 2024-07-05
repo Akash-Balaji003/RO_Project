@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Evillcons from 'react-native-vector-icons/EvilIcons';
-import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import { format } from 'date-fns';
 import { DateProvider, useDate } from '/Users/akashbalaji/RO_Project/Frontend/components/DateContext.tsx'; // Import useDate
@@ -11,19 +11,25 @@ import Payroll from './screens/Payroll';
 import Home from './screens/Home';
 import Sales from './screens/Sales';
 import Credits from './screens/Credits';
+import SalAdv from './screens/SalAdv';
+import SalCalc from './screens/SalCalc';
+import Ledger from './screens/Ledger'
 
 export type RootStackParamList = {
   Sales: undefined;
   Payroll: undefined;
   Home: undefined;
   Credits: undefined;
+  SalAdv: undefined;
+  SalCalc: undefined;
+  Ledger: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
   const [open, setOpen] = useState(false);
-  const { date, setDate } = useDate(); // Use the custom hook
+  const { date, setDate } = useDate();
   const formattedDate = format(date, 'dd MMMM yyyy');
 
   return (
@@ -87,6 +93,36 @@ function App() {
               </View>
             ),
           }}
+        />
+        <Stack.Screen 
+          name="SalAdv" 
+          component={SalAdv} 
+          options={{
+            title: "Salary Advance",
+            headerTitleStyle: { color: 'orange' },
+            headerStyle: {
+              backgroundColor: '#D7FCF1',
+            }}}
+        />
+        <Stack.Screen 
+          name="SalCalc" 
+          component={SalCalc} 
+          options={{
+            title: "Salary Calculation",
+            headerTitleStyle: { color: 'orange' },
+            headerStyle: {
+              backgroundColor: '#D7FCF1',
+            }}}
+        />
+        <Stack.Screen 
+          name="Ledger" 
+          component={Ledger} 
+          options={{
+            title: "Ledger",
+            headerTitleStyle: { color: 'orange' },
+            headerStyle: {
+              backgroundColor: '#D7FCF1',
+            }}}
         />
       </Stack.Navigator>
     </NavigationContainer>

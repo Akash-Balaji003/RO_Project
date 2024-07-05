@@ -9,13 +9,20 @@ import {
     View,
     ActivityIndicator,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Feather from 'react-native-vector-icons/Feather';
 import { RootStackParamList } from '../App';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDate } from '../components/DateContext';
 import { format } from 'date-fns';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import Octicons from 'react-native-vector-icons/Octicons';
+import Entypo from 'react-native-vector-icons/Entypo';
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
+
 
 
 type PayrollProps = NativeStackScreenProps<RootStackParamList, 'Payroll'>;
@@ -36,7 +43,7 @@ const Payroll = ({ navigation }: PayrollProps) => {
     const [loading, setLoading] = useState(true); // Loader state
     const { date } = useDate();
     const formattedDate = format(date, 'yyyy-MM-dd');
-
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchEmployees();
@@ -62,6 +69,7 @@ const Payroll = ({ navigation }: PayrollProps) => {
             setEmployees(employeeData);
         } catch (error) {
             console.error('Error fetching data:', error);
+            setError('Error fetching data. Try again later.');
         } finally {
             setLoading(false); // Set loading to false once data is fetched
         }
@@ -75,7 +83,7 @@ const Payroll = ({ navigation }: PayrollProps) => {
 
             if (data.length === 0) {
                 fetchEmployees();
-                Alert.alert(`Attendance for ${formattedDate} has not been updated`)
+                Alert.alert('Error',`Attendance for ${formattedDate} is not available`)
             } else {
                 const employeeData = data.map((emp: { emp_id: number; emp_name: string, iconAM: string, iconPM: string, tickColor: string, crossColor: string }) => ({
                     emp_id: emp.emp_id,
@@ -92,6 +100,7 @@ const Payroll = ({ navigation }: PayrollProps) => {
         } catch (error) {
             console.error('Error fetching attendance data:', error);
             Alert.alert('Error', 'Error fetching attendance data');
+            setError('Error fetching attendance data. Try again later.');
         } finally {
             setLoading(false);
         }
@@ -223,8 +232,13 @@ const Payroll = ({ navigation }: PayrollProps) => {
         );
     };
 
+    function onPressButton(text: string) {
+        Alert.alert('You tapped ' + text);
+      }
+/*
     return (
         <SafeAreaView style={styles.bg1}>
+            <View style={styles.mainScreen}>
             {loading ? ( // Display loader while fetching data
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
@@ -284,6 +298,36 @@ const Payroll = ({ navigation }: PayrollProps) => {
                     </View>
                 </ScrollView>
             )}
+            <View style={styles.navbarFooter}>
+                        <View style={styles.footerItemHolder}>
+
+                            <TouchableOpacity style={{flex:0.7}} onPress={()=>navigation.navigate("Home")}>
+                                <Octicons name='home' size={30} color={'black'} style={{marginLeft:5}}/>
+                                <Text style={styles.Bottom}>Home</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={{flex:1.2}} onPress={()=>navigation.navigate("Payroll")} >
+                                <MaterialCommunityIcons name='notebook-edit-outline' size={30} color={'black'} style={{marginLeft:20}}/>
+                                <Text style={styles.Bottom}>Attendance</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={{flex:0.9}} onPress={()=>navigation.navigate("SalAdv")}>
+                                <FontAwesome5 name='coins' size={30} color={'black'} style={{marginLeft:9}} />
+                                <Text style={styles.Bottom}>Sal. Adv</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={{flex:0.95}} onPress={()=>navigation.navigate("SalCalc")}>
+                                <SimpleLineIcons name='calculator' size={30} color={'black'} style={{marginLeft:9}} />
+                                <Text style={styles.Bottom}>Sal. Calc</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity style={{flex:0.95}} onPress={()=>navigation.navigate("Ledger")}>
+                                <SimpleLineIcons name='notebook' size={30} color={'black'} style={{marginLeft:5}} />
+                                <Text style={styles.Bottom}>Ledger</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+            </View>
         </SafeAreaView>
     );
 };
@@ -370,6 +414,258 @@ const styles = StyleSheet.create({
         backgroundColor: '#D7FCF1',
         width: 360,
     },
+  
+    footerItemHolder:{
+        flexDirection: 'row',
+        justifyContent:'space-around',
+        width: 360,
+        gap:20,
+        margin:8,
+    },
+    
+    Bottom: {
+        color: 'black',
+        fontSize: 14,
+        fontFamily: 'poppins',
+    },
+      
+    navbarFooter:{
+        flexDirection: 'row',
+        backgroundColor: 'white',
+        width: 360,
+        height: 203,
+        elevation:8,
+    },
+    mainScreen:{
+        width: 360,
+        height: 800
+    },
 });
+*/
+return (
+    <SafeAreaView style={styles.bg1}>
+        <View style={styles.mainScreen}>
+            <View style={{ flex: 1 }}>
+                {loading ? (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#0000ff" />
+                    </View>
+                ) : error ? (
+                    <View style={styles.errorContainer}>
+                        <Text style={styles.errorText}>{error}</Text>
+                    </View>
+                ) : (
+                    <ScrollView>
+                        <View style={styles.list_container}>
+                            {employees.map(({ emp_id, emp_name, iconAM, iconPM, tickColor, crossColor, imageUrl }) => (
+                                <View key={emp_id} style={styles.Emp_card}>
+                                    <Image
+                                        source={require('/Users/akashbalaji/RO_Project/Frontend/images/test1.jpeg')}
+                                        style={styles.Emp_image_style}
+                                    />
+                                    <View style={{ width: 80 }}>
+                                        <Text style={styles.Emp_name_style}>{emp_name}</Text>
+                                        <View style={{ flexDirection: 'row', gap: 4 }}>
+                                            <Text style={styles.Emp_id_style}>Emp_id:</Text>
+                                            <Text style={styles.Emp_name_style}>{emp_id}</Text>
+                                        </View>
+                                    </View>
+                                    <View style={{ gap: 5, marginLeft: 65 }}>
+                                        <View style={{ marginLeft: 3, flexDirection: 'row', gap: 17, alignSelf: 'flex-start' }}>
+                                            <TouchableOpacity onPress={() => toggleTickColor(emp_id)}>
+                                                <FontAwesome name='check' size={28} color={tickColor} />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={() => toggleCrossColor(emp_id)}>
+                                                <FontAwesome name='remove' size={28} color={crossColor} />
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={{ marginTop: 8 }}>
+                                            <View style={{ marginLeft: 2, flexDirection: 'row', gap: 15, alignSelf: 'flex-start' }}>
+                                                <TouchableOpacity onPress={() => toggleIconAM(emp_id)}>
+                                                    <Feather name={iconAM} size={28} color="#000" />
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={() => toggleIconPM(emp_id)}>
+                                                    <Feather name={iconPM} size={28} color="#000" />
+                                                </TouchableOpacity>
+                                            </View>
+                                            <View style={{ marginLeft: 5, flexDirection: 'row', gap: 22 }}>
+                                                <Text style={{ color: 'black' }}>AM</Text>
+                                                <Text style={{ color: 'black' }}>PM</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+                                </View>
+                            ))}
+                        </View>
+
+                        <View style={styles.btn_container}>
+                            <TouchableOpacity style={styles.cardviewBtnReset} onPress={resetEmployees}>
+                                <Text style={styles.BtnText}>Reset</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.cardviewBtnEdit} onPress={fetchAttendanceData}>
+                                <Text style={styles.BtnText}>Edit</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.cardviewBtnSubmit} onPress={submitData}>
+                                <Text style={styles.BtnText}>Submit</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </ScrollView>
+                )}
+            </View>
+            <View style={styles.navbarFooter}>
+                <View style={styles.footerItemHolder}>
+                    <TouchableOpacity style={{ flex: 0.7 }} onPress={() => navigation.navigate("Home")}>
+                        <Octicons name='home' size={30} color={'black'} style={{ marginLeft: 5 }} />
+                        <Text style={styles.Bottom}>Home</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: 1.2 }} onPress={() => navigation.navigate("Payroll")}>
+                        <MaterialCommunityIcons name='notebook-edit-outline' size={30} color={'black'} style={{ marginLeft: 20 }} />
+                        <Text style={styles.Bottom}>Attendance</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: 0.9 }} onPress={() => navigation.navigate("SalAdv")}>
+                        <FontAwesome5 name='coins' size={30} color={'black'} style={{ marginLeft: 9 }} />
+                        <Text style={styles.Bottom}>Sal. Adv</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: 0.95 }} onPress={() => navigation.navigate("SalCalc")}>
+                        <SimpleLineIcons name='calculator' size={30} color={'black'} style={{ marginLeft: 9 }} />
+                        <Text style={styles.Bottom}>Sal. Calc</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={{ flex: 0.95 }} onPress={() => navigation.navigate("Ledger")}>
+                        <SimpleLineIcons name='notebook' size={30} color={'black'} style={{ marginLeft: 5 }} />
+                        <Text style={styles.Bottom}>Ledger</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </View>
+    </SafeAreaView>
+);
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        paddingHorizontal: 21,
+    },
+    cardviewBtnReset: {
+        backgroundColor: 'red',
+        borderRadius: 10,
+        height: 40,
+        width: 100,
+        elevation: 8,
+    },
+    cardviewBtnEdit: {
+        backgroundColor: 'orange',
+        borderRadius: 10,
+        height: 40,
+        width: 100,
+        elevation: 8,
+    },
+    cardviewBtnSubmit: {
+        backgroundColor: 'green',
+        borderRadius: 10,
+        height: 40,
+        width: 100,
+        elevation: 8,
+    },
+    BtnText: {
+        textAlign: 'center',
+        fontWeight: 'bold',
+        color: '#ffffff',
+        paddingTop: 8,
+    },
+    Emp_card: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        borderRadius: 6,
+        height: 90,
+        width: 330,
+        padding: 10,
+        gap: 15,
+        marginTop: 8,
+    },
+    btn_container: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        gap: 12,
+        marginTop: 8,
+        marginLeft: 16,
+        width: 329,
+        marginBottom: 8,
+    },
+    list_container: {
+        margin: 15,
+        marginTop: 8,
+        gap: 10,
+        backgroundColor: '#D7FCF1',
+        width: 360,
+        height: 'auto',
+    },
+    Emp_image_style: {
+        height: 70,
+        width: 70,
+        borderRadius: 35,
+    },
+    Emp_name_style: {
+        color: 'black',
+        alignContent: 'center',
+        fontFamily: 'Poppins',
+        fontSize: 16,
+    },
+    Emp_id_style: {
+        color: '#6E6E6E',
+        alignContent: 'center',
+        fontFamily: 'Poppins',
+        fontSize: 16,
+    },
+    bg1: {
+        backgroundColor: '#D7FCF1',
+        flex: 1,
+    },
+    footerItemHolder: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: 360,
+        gap: 20,
+        margin: 8,
+    },
+    Bottom: {
+        color: 'black',
+        fontSize: 14,
+        fontFamily: 'poppins',
+    },
+    navbarFooter: {
+        flexDirection: 'row',
+        backgroundColor: 'white',
+        width: 360,
+        height: 65,
+        elevation: 8,
+    },
+    mainScreen: {
+        width: 360,
+        height: '100%',
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 18,
+        textAlign: 'center',
+    },
+});
+
 
 export default Payroll;

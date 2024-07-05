@@ -70,5 +70,5 @@ const styles = StyleSheet.create({
       width: 360,
       height: 203,
       elevation:8,
-    },
+    }
 });
