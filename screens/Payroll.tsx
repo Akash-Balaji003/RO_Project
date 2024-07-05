@@ -35,6 +35,8 @@ const Payroll = ({ navigation }: PayrollProps) => {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(true); // Loader state
     const { date } = useDate();
+    const formattedDate = format(date, 'yyyy-MM-dd');
+
 
     useEffect(() => {
         fetchEmployees();
@@ -65,6 +67,37 @@ const Payroll = ({ navigation }: PayrollProps) => {
         }
     };
 
+    const fetchAttendanceData = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch(`https://hchjn6x7-8000.inc1.devtunnels.ms/get-att-data?date=${formattedDate}`);
+            const data = await response.json();
+
+            if (data.length === 0) {
+                fetchEmployees();
+                Alert.alert(`Attendance for ${formattedDate} has not been updated`)
+            } else {
+                const employeeData = data.map((emp: { emp_id: number; emp_name: string, iconAM: string, iconPM: string, tickColor: string, crossColor: string }) => ({
+                    emp_id: emp.emp_id,
+                    Company_id: 101,
+                    emp_name: emp.emp_name,
+                    imageUrl: require('/Users/akashbalaji/RO_Project/Frontend/images/test1.jpeg'),
+                    iconAM: emp.iconAM || 'square',
+                    iconPM: emp.iconPM || 'square',
+                    tickColor: emp.tickColor || 'grey',
+                    crossColor: emp.crossColor || 'grey',
+                }));
+                setEmployees(employeeData);
+            }
+        } catch (error) {
+            console.error('Error fetching attendance data:', error);
+            Alert.alert('Error', 'Error fetching attendance data');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     const resetEmployees = () => {
         setEmployees(prevEmployees =>
             prevEmployees.map(emp => ({
@@ -77,9 +110,19 @@ const Payroll = ({ navigation }: PayrollProps) => {
         );
     };
 
+    const checkAttendanceExists = async () => {
+        try {
+            const response = await fetch(`https://hchjn6x7-8000.inc1.devtunnels.ms/check-att-data?date=${formattedDate}`);
+            const data = await response.json();
+            return data.exists; // Assuming the endpoint returns a JSON object with an 'exists' boolean field
+        } catch (error) {
+            console.error('Error checking attendance data:', error);
+            return false;
+        }
+    };
+    
     const submitData = async () => {
         const currentDate = new Date().toISOString().split('T')[0];
-        const formattedDate = format(date, 'yyyy-MM-dd');
         const employeeData = employees.map(emp => ({
             Emp_id: emp.emp_id,
             Emp_name: emp.emp_name,
@@ -89,23 +132,28 @@ const Payroll = ({ navigation }: PayrollProps) => {
             iconAM: emp.iconAM,
             iconPM: emp.iconPM,
         }));
-
+    
         try {
-            const response = await fetch('https://hchjn6x7-8000.inc1.devtunnels.ms/submit', {
-                method: 'POST',
+            const attendanceExists = await checkAttendanceExists();
+    
+            const endpoint = attendanceExists ? 'update' : 'submit';
+            const method = attendanceExists ? 'PUT' : 'POST';
+            
+            const response = await fetch(`https://hchjn6x7-8000.inc1.devtunnels.ms/${endpoint}`, {
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(employeeData),
             });
-
+    
             if (response.ok) {
                 const json = await response.json();
                 console.log('Response from server:', json);
-                Alert.alert('Success', 'Attendance updated successfully');
-                resetEmployees() // Reset the employees list to the initial state
+                Alert.alert('Success', `Attendance ${attendanceExists ? 'updated' : 'submitted'} successfully`);
+                resetEmployees(); // Reset the employees list to the initial state
             } else {
-                throw new Error('Failed to submit data');
+                throw new Error(`Failed to ${attendanceExists ? 'update' : 'submit'} data`);
             }
         } catch (error) {
             console.error('Error submitting data:', error);
@@ -227,7 +275,7 @@ const Payroll = ({ navigation }: PayrollProps) => {
                         <TouchableOpacity style={styles.cardviewBtnReset} onPress={resetEmployees}>
                             <Text style={styles.BtnText}>Reset</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.cardviewBtnEdit}>
+                        <TouchableOpacity style={styles.cardviewBtnEdit} onPress={fetchAttendanceData}>
                             <Text style={styles.BtnText}>Edit</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.cardviewBtnSubmit} onPress={submitData}>
