@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     Alert,
-    Button,
     SafeAreaView,
     ScrollView,
     StyleSheet,
@@ -19,6 +18,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import { RadioButtonProps, RadioGroup } from 'react-native-radio-buttons-group';
 
 type SalAdvProps = NativeStackScreenProps<RootStackParamList, 'SalAdv'> 
 
@@ -27,24 +27,36 @@ type ItemType = {
     value: string;
 };
 
-const data = [
-    { label: 'Item 1', value: '1' },
-    { label: 'Item 2', value: '2' },
-    { label: 'Item 3', value: '3' },
-    { label: 'Item 4', value: '4' },
-    { label: 'Item 5', value: '5' },
-    { label: 'Item 6', value: '6' },
-    { label: 'Item 7', value: '7' },
-    { label: 'Item 8', value: '8' },
-  ];
 
 const SalAdv = ({navigation}:SalAdvProps) => {
     function onPressButton(text: string) {
         Alert.alert('You tapped ' + text);
       }
 
+    const [dropdownData, setDropdownData] = useState<ItemType[]>([]);
     const [value, setValue] = useState<string | null>(null);
     const [number, onChangeNumber] = React.useState('');
+
+    useEffect(() => {
+      const fetchData = async () => {
+          try {
+              const response = await fetch('https://hchjn6x7-8000.inc1.devtunnels.ms/get-data'); // Replace with your actual API URL
+              const dataString = await response.json();
+              const data = JSON.parse(dataString);
+              console.log('Parsed data:', data);
+              const formattedData = data.map((item: any) => ({
+                  label: item.emp_name,
+                  value: item.emp_id.toString(),
+              }));
+              setDropdownData(formattedData);
+          } catch (error) {
+              console.error('Error fetching data:', error);
+              Alert.alert('Error', 'Failed to fetch data. Try again later.');
+          }
+      };
+
+      fetchData();
+  }, []);
 
     const renderItem = (item: ItemType) => {
         return (
@@ -61,18 +73,91 @@ const SalAdv = ({navigation}:SalAdvProps) => {
           </View>
         );
     };
+
+
+    const radioButtons = useMemo(() => ([
+      {
+          id: '1', // acts as primary key, should be unique and non-empty string
+          label: 'Advance',
+          value: 'option1'
+      },
+      {
+          id: '2',
+          label: 'Recovery',
+          value: 'option2'
+      }
+    ]), []);
+
+    const [selectedId, setSelectedId] = useState<string | undefined>();
+    const [selectedIdMOP, setSelectedIdMOP] = useState<string | undefined>();
+    const [selectCom, setselectCom] = useState<string | undefined>();
+    const [text, onChangeText] = React.useState('');
+
+
+
+    const MOPBtns: RadioButtonProps[] = useMemo(() => ([
+      {
+          id: '1', // acts as primary key, should be unique and non-empty string
+          label: 'Cash',
+          value: 'option1'
+      },
+      {
+        id: '2', // acts as primary key, should be unique and non-empty string
+        label: 'Gpay',
+        value: 'option2'
+      },
+      {
+          id: '3',
+          label: 'PayTM',
+          value: 'option3'
+      }
+  ]), []);
+
+  const MOPBtns2: RadioButtonProps[] = useMemo(() => ([
+    {
+        id: '4', // acts as primary key, should be unique and non-empty string
+        label: 'NEFT',
+        value: 'option4'
+    },
+    {
+      id: '5', // acts as primary key, should be unique and non-empty string
+      label: 'Cheque',
+      value: 'option5'
+    }
+]), []);
+
+  const Comments: RadioButtonProps[] = useMemo(() => ([
+    {
+        id: '1', // acts as primary key, should be unique and non-empty string
+        label: 'Salary Advance',
+        value: 'option1'
+    },
+    {
+      id: '2', // acts as primary key, should be unique and non-empty string
+      label: 'Shortage',
+      value: 'option2'
+    },
+    {
+      id: '3', // acts as primary key, should be unique and non-empty string
+      label: 'Others',
+      value: 'option3'
+    }
+  ]), []);
+
+
+
     return(
         <SafeAreaView style={styles.bg1}>
             <View style={styles.mainScreen}>
                 <ScrollView>
-                    <View style={styles.Emp_card}> 
+                  <View style={styles.Emp_card}> 
                     <Dropdown
                         style={styles2.dropdown}
                         placeholderStyle={styles2.Emp_nameStyle}
                         selectedTextStyle={styles2.Emp_nameStyle}
                         inputSearchStyle={styles2.inputSearchStyle}
                         iconStyle={styles2.iconStyle}
-                        data={data}
+                        data={dropdownData}
                         search
                         maxHeight={300}
                         labelField="label"
@@ -88,10 +173,18 @@ const SalAdv = ({navigation}:SalAdvProps) => {
                         )}
                         renderItem={renderItem}
                         />
-                        <View style={{flexDirection:'row', width:300, height:50, gap:30}}>
-                            <Text style={{color:'black', fontSize:20, width:120, paddingTop:2}}>Advance Rs.</Text>
+                        <View style={{flexDirection:'row', width:300, height:75, gap:10}}>
+                            <View style={styles.container}>
+                              <RadioGroup
+                                radioButtons={radioButtons}
+                                onPress={setSelectedId}
+                                selectedId={selectedId}
+                                containerStyle={styles.radioContainer}
+                                labelStyle={styles.label}
+                              />
+                            </View>
                             <TextInput
-                                style={{color:'orange', height: 30, width:150, borderBlockColor:'grey', borderRadius:5, borderWidth:1, fontSize:18, paddingBottom:1}}
+                                style={{color:'orange', height: 30, width:150, borderBlockColor:'grey', borderRadius:5, borderWidth:1, fontSize:18, paddingBottom:1, marginTop:20}}
                                 onChangeText={onChangeNumber}
                                 value={number}
                                 placeholderTextColor='orange'
@@ -100,8 +193,56 @@ const SalAdv = ({navigation}:SalAdvProps) => {
                                 keyboardType="numeric"
                             />
                         </View>
-                    </View>
-                    <View style={styles.btn_container}>
+                        <View style={{width:300, height:115}}>
+                          <Text style={{color:'black', fontSize:18, textAlign:'left'}}>Mode of Payment</Text>
+                          <View style={{flexDirection: 'column', gap:10}}>
+                            <RadioGroup 
+                                  radioButtons={MOPBtns} 
+                                  onPress={setSelectedIdMOP}
+                                  selectedId={selectedIdMOP}
+                                  containerStyle={{flexDirection: 'row', alignItems:'flex-start'}}
+                                  labelStyle={styles.label}
+                            />
+                            <RadioGroup 
+                                  radioButtons={MOPBtns2} 
+                                  onPress={setSelectedIdMOP}
+                                  selectedId={selectedIdMOP}
+                                  containerStyle={{flexDirection: 'row', alignItems:'flex-start'}}
+                                  labelStyle={styles.label}
+                            />
+                          </View>
+                        </View>
+                        <View style={{width:300, height:140}}>
+                          <Text style={{color:'black', fontSize:18, textAlign:'left'}}>Comments</Text>
+                          <View style={{flexDirection: 'row', gap:10}}>
+                            <RadioGroup 
+                                  radioButtons={Comments} 
+                                  onPress={setselectCom}
+                                  selectedId={selectCom}
+                                  containerStyle={{flexDirection: 'column', gap:8, alignItems:'flex-start'}}
+                                  labelStyle={styles.label}
+                            />
+                          </View>
+                        </View>
+                        <TextInput
+                              style={{color: 'black',
+                                height: 80,
+                                width: 300,
+                                borderColor: 'grey',
+                                borderRadius: 5,
+                                borderWidth: 1,
+                                fontSize: 16,
+                                marginTop: 10,
+                                paddingLeft: 10}}
+                              onChangeText={onChangeText}
+                              value={text}
+                              placeholderTextColor='black'
+                              textAlign='left'
+                              placeholder="Type..."
+                        />
+                  </View>
+
+                  <View style={styles.btn_container}>
                         <TouchableOpacity style={styles.cardviewBtnReset} onPress={()=>onPressButton("Reset")}>
                             <Text style={styles.BtnText}>Reset</Text>
                         </TouchableOpacity>
@@ -111,7 +252,8 @@ const SalAdv = ({navigation}:SalAdvProps) => {
                         <TouchableOpacity style={styles.cardviewBtnSubmit} onPress={()=>onPressButton("Submit")}>
                             <Text style={styles.BtnText}>Submit</Text>
                         </TouchableOpacity>
-                    </View>
+                  </View>
+
                 </ScrollView>
                 <View style={styles.navbarFooter}>
                     <View style={styles.footerItemHolder}>
@@ -181,8 +323,8 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         height: 523,
         width: 330,
-        padding: 10,
-        gap: 15,
+        padding: 7,
+        gap: 5,
         marginTop: 8,
         marginLeft:15
     },
@@ -225,6 +367,21 @@ const styles = StyleSheet.create({
         width: 360,
         height: 800
     },
+    container: {
+      justifyContent: 'flex-start',
+      height:60,
+      width: 140
+    },
+    radioContainer: {
+      flexDirection: 'column',
+      width: 140
+      // Default is row, change to column if needed
+    },
+    label: {
+      marginRight:20,
+      color: 'black',
+      fontSize:14 // Add some margin to the right of the label
+    }
 });
 
 const styles2 = StyleSheet.create({
@@ -274,126 +431,10 @@ const styles2 = StyleSheet.create({
     height: 20,
   },
   inputSearchStyle: {
+    color:'black',
     height: 40,
     fontSize: 16,
   },
 });
-
 
 export default SalAdv;
-/*
-import React, { useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { Dropdown } from 'react-native-element-dropdown';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-
-const data = [
-  { label: 'Item 1', value: '1' },
-  { label: 'Item 2', value: '2' },
-  { label: 'Item 3', value: '3' },
-  { label: 'Item 4', value: '4' },
-  { label: 'Item 5', value: '5' },
-  { label: 'Item 6', value: '6' },
-  { label: 'Item 7', value: '7' },
-  { label: 'Item 8', value: '8' },
-];
-
-type ItemType = {
-  label: string;
-  value: string;
-};
-
-const DropdownComponent = () => {
-  const [value, setValue] = useState<string | null>(null);
-
-  const renderItem = (item: ItemType) => {
-    return (
-      <View style={styles.item}>
-        <Text style={styles.textItem}>{item.label}</Text>
-        {item.value === value && (
-          <AntDesign
-            style={styles.icon}
-            color="black"
-            name="Safety"
-            size={20}
-          />
-        )}
-      </View>
-    );
-  };
-
-  return (
-    <Dropdown
-      style={styles.dropdown}
-      placeholderStyle={styles.placeholderStyle}
-      selectedTextStyle={styles.selectedTextStyle}
-      inputSearchStyle={styles.inputSearchStyle}
-      iconStyle={styles.iconStyle}
-      data={data}
-      search
-      maxHeight={300}
-      labelField="label"
-      valueField="value"
-      placeholder="Select item"
-      searchPlaceholder="Search..."
-      value={value}
-      onChange={(item: ItemType) => {
-        setValue(item.value);
-      }}
-      renderLeftIcon={() => (
-        <AntDesign style={styles.icon} color="black" name="Safety" size={20} />
-      )}
-      renderItem={renderItem}
-    />
-  );
-};
-
-export default DropdownComponent;
-
-const styles = StyleSheet.create({
-  dropdown: {
-    margin: 16,
-    height: 50,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-
-    elevation: 2,
-  },
-  icon: {
-    marginRight: 5,
-  },
-  item: {
-    padding: 17,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  textItem: {
-    flex: 1,
-    fontSize: 16,
-    color:'black'
-  },
-  placeholderStyle: {
-    fontSize: 16,
-  },
-  selectedTextStyle: {
-    fontSize: 16,
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
-  },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
-  },
-});
-*/

@@ -36,6 +36,8 @@ type Employee = {
     iconPM: string;
     tickColor: string;
     crossColor: string;
+    iconsVisible: boolean;
+
 };
 
 const Payroll = ({ navigation }: PayrollProps) => {
@@ -65,6 +67,7 @@ const Payroll = ({ navigation }: PayrollProps) => {
                 iconPM: 'square',
                 tickColor: 'grey',
                 crossColor: 'grey',
+                iconsVisible: false,
             }));
             setEmployees(employeeData);
         } catch (error) {
@@ -94,6 +97,7 @@ const Payroll = ({ navigation }: PayrollProps) => {
                     iconPM: emp.iconPM || 'square',
                     tickColor: emp.tickColor || 'grey',
                     crossColor: emp.crossColor || 'grey',
+                    iconsVisible: emp.iconAM === 'check-square' || emp.iconPM === 'check-square',
                 }));
                 setEmployees(employeeData);
             }
@@ -115,6 +119,7 @@ const Payroll = ({ navigation }: PayrollProps) => {
                 iconPM: 'square',
                 tickColor: 'grey',
                 crossColor: 'grey',
+                iconsVisible: false,
             }))
         );
     };
@@ -210,6 +215,7 @@ const Payroll = ({ navigation }: PayrollProps) => {
                           crossColor: 'grey',
                           iconAM: emp.tickColor === 'grey' ? 'check-square' : 'square',
                           iconPM: emp.tickColor === 'grey' ? 'check-square' : 'square',
+                          iconsVisible: !emp.iconsVisible,
                       }
                     : emp
             )
@@ -226,323 +232,119 @@ const Payroll = ({ navigation }: PayrollProps) => {
                           tickColor: emp.crossColor === 'grey' ? 'grey' : emp.tickColor,
                           iconAM: emp.crossColor === 'grey' ? 'square' : emp.iconAM,
                           iconPM: emp.crossColor === 'grey' ? 'square' : emp.iconPM,
+                          iconsVisible: false,
                       }
                     : emp
             )
         );
     };
 
-    function onPressButton(text: string) {
-        Alert.alert('You tapped ' + text);
-      }
-/*
     return (
         <SafeAreaView style={styles.bg1}>
             <View style={styles.mainScreen}>
-            {loading ? ( // Display loader while fetching data
-                <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-                <ScrollView>
-                    <View style={styles.list_container}>
-                        {employees.map(({ emp_id, emp_name, iconAM, iconPM, tickColor, crossColor, imageUrl }) => (
-                            <View key={emp_id} style={styles.Emp_card}>
-                                <Image
-                                    source={require('/Users/akashbalaji/RO_Project/Frontend/images/test1.jpeg')}
-                                    style={styles.Emp_image_style}
-                                />
-                                <View style={{ width: 80 }}>
-                                    <Text style={styles.Emp_name_style}>{emp_name}</Text>
-                                    <View style={{ flexDirection: 'row', gap: 4 }}>
-                                        <Text style={styles.Emp_id_style}>Emp_id:</Text>
-                                        <Text style={styles.Emp_name_style}>{emp_id}</Text>
-                                    </View>
-                                </View>
-                                <View style={{ gap: 5, marginLeft: 65 }}>
-                                    <View style={{ marginLeft: 3, flexDirection: 'row', gap: 17, alignSelf: 'flex-start' }}>
-                                        <TouchableOpacity onPress={() => toggleTickColor(emp_id)}>
-                                            <FontAwesome name='check' size={28} color={tickColor} />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => toggleCrossColor(emp_id)}>
-                                            <FontAwesome name='remove' size={28} color={crossColor} />
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View style={{ marginTop: 8 }}>
-                                        <View style={{ marginLeft: 2, flexDirection: 'row', gap: 15, alignSelf: 'flex-start' }}>
-                                            <TouchableOpacity onPress={() => toggleIconAM(emp_id)}>
-                                                <Feather name={iconAM} size={28} color="#000" />
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => toggleIconPM(emp_id)}>
-                                                <Feather name={iconPM} size={28} color="#000" />
-                                            </TouchableOpacity>
-                                        </View>
-                                        <View style={{ marginLeft: 5, flexDirection: 'row', gap: 22 }}>
-                                            <Text style={{ color: 'black' }}>AM</Text>
-                                            <Text style={{ color: 'black' }}>PM</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-
-                    <View style={styles.btn_container}>
-                        <TouchableOpacity style={styles.cardviewBtnReset} onPress={resetEmployees}>
-                            <Text style={styles.BtnText}>Reset</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.cardviewBtnEdit} onPress={fetchAttendanceData}>
-                            <Text style={styles.BtnText}>Edit</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.cardviewBtnSubmit} onPress={submitData}>
-                            <Text style={styles.BtnText}>Submit</Text>
-                        </TouchableOpacity>
-                    </View>
-                </ScrollView>
-            )}
-            <View style={styles.navbarFooter}>
-                        <View style={styles.footerItemHolder}>
-
-                            <TouchableOpacity style={{flex:0.7}} onPress={()=>navigation.navigate("Home")}>
-                                <Octicons name='home' size={30} color={'black'} style={{marginLeft:5}}/>
-                                <Text style={styles.Bottom}>Home</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity style={{flex:1.2}} onPress={()=>navigation.navigate("Payroll")} >
-                                <MaterialCommunityIcons name='notebook-edit-outline' size={30} color={'black'} style={{marginLeft:20}}/>
-                                <Text style={styles.Bottom}>Attendance</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity style={{flex:0.9}} onPress={()=>navigation.navigate("SalAdv")}>
-                                <FontAwesome5 name='coins' size={30} color={'black'} style={{marginLeft:9}} />
-                                <Text style={styles.Bottom}>Sal. Adv</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity style={{flex:0.95}} onPress={()=>navigation.navigate("SalCalc")}>
-                                <SimpleLineIcons name='calculator' size={30} color={'black'} style={{marginLeft:9}} />
-                                <Text style={styles.Bottom}>Sal. Calc</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity style={{flex:0.95}} onPress={()=>navigation.navigate("Ledger")}>
-                                <SimpleLineIcons name='notebook' size={30} color={'black'} style={{marginLeft:5}} />
-                                <Text style={styles.Bottom}>Ledger</Text>
-                            </TouchableOpacity>
+                <View style={{ flex: 1 }}>
+                    {loading ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color="#0000ff" />
                         </View>
+                    ) : error ? (
+                        <View style={styles.errorContainer}>
+                            <Text style={styles.errorText}>{error}</Text>
+                        </View>
+                    ) : (
+                        <ScrollView>
+                            <View style={styles.list_container}>
+                                {employees.map(({ emp_id, emp_name, iconAM, iconPM, tickColor, crossColor, imageUrl, iconsVisible }) => (
+                                    <View key={emp_id} style={styles.Emp_card}>
+                                        <Image
+                                            source={require('/Users/akashbalaji/RO_Project/Frontend/images/test1.jpeg')}
+                                            style={styles.Emp_image_style}
+                                        />
+                                        <View style={{ width: 80 }}>
+                                            <Text style={styles.Emp_name_style}>{emp_name}</Text>
+                                            <View style={{ flexDirection: 'row', gap: 4 }}>
+                                                <Text style={styles.Emp_id_style}>Emp_id:</Text>
+                                                <Text style={styles.Emp_name_style}>{emp_id}</Text>
+                                            </View>
+                                        </View>
+                                        <View style={[{top: iconsVisible ? -3 : 28,},{ gap: 5, marginLeft: 8, alignSelf:"flex-start", marginTop:0}]}>
+                                            <TouchableOpacity style={{backgroundColor:'#91DDCF', height:25, width: 25, borderRadius:12.5, elevation:10}}>
+                                                <Text style={{color:'black', textAlign:'center', paddingTop:3}}>OT</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                        <View style={{ gap: 5, marginLeft: 13 }}>
+                                            <View style={{ marginLeft: 3, flexDirection: 'row', gap: 17, alignSelf: 'flex-start' }}>
+                                                <TouchableOpacity onPress={() => toggleTickColor(emp_id)} style={[{top: iconsVisible ? 0 : 30,}]}>
+                                                    <FontAwesome name='check' size={30} color={tickColor} />
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={() => toggleCrossColor(emp_id)} style={[{top: iconsVisible ? 0 : 30,}]}>
+                                                    <FontAwesome name='remove' size={30} color={crossColor} />
+                                                </TouchableOpacity>
+                                            </View>
+                                            <View style={[{top: iconsVisible ? 0 : 35,},{}]}>
+                                                <View style={{ marginLeft: 2, flexDirection: 'row', gap: 15, alignSelf: 'flex-start' }}>
+                                                    <TouchableOpacity onPress={() => toggleIconAM(emp_id)} disabled={!iconsVisible}>
+                                                        <Feather name={iconAM} size={28} color="#000" style={[iconsVisible ? {} : { opacity: 0 }]} />
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity onPress={() => toggleIconPM(emp_id)} disabled={!iconsVisible}>
+                                                        <Feather name={iconPM} size={28} color="#000" style={[iconsVisible ? {} : { opacity: 0}]} />
+                                                    </TouchableOpacity>
+                                                </View>
+                                                <View style={{ marginLeft: 4, flexDirection: 'row', gap: 18 }}>
+                                                    <Text style={[iconsVisible ? {} : { opacity: 0 }, {color:'black'}]}>Half</Text>
+                                                    <Text style={[iconsVisible ? {} : { opacity: 0 }, {color:'black'}]}>Full</Text>
+                                                </View>
+                                            </View>
+                                        </View>
+                                    </View>
+                                ))}
+                            </View>
+
+                            <View style={styles.btn_container}>
+                                <TouchableOpacity style={styles.cardviewBtnReset} onPress={resetEmployees}>
+                                    <Text style={styles.BtnText}>Reset</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.cardviewBtnEdit} onPress={fetchAttendanceData}>
+                                    <Text style={styles.BtnText}>Edit</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.cardviewBtnSubmit} onPress={submitData}>
+                                    <Text style={styles.BtnText}>Submit</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </ScrollView>
+                    )}
+                </View>
+                <View style={styles.navbarFooter}>
+                    <View style={styles.footerItemHolder}>
+                        <TouchableOpacity style={{ flex: 0.7 }} onPress={() => navigation.navigate("Home")}>
+                            <Octicons name='home' size={30} color={'black'} style={{ marginLeft: 5 }} />
+                            <Text style={styles.Bottom}>Home</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={{ flex: 1.2 }} onPress={() => navigation.navigate("Payroll")}>
+                            <MaterialCommunityIcons name='notebook-edit-outline' size={30} color={'black'} style={{ marginLeft: 20 }} />
+                            <Text style={styles.Bottom}>Attendance</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={{ flex: 0.9 }} onPress={() => navigation.navigate("SalAdv")}>
+                            <FontAwesome5 name='coins' size={30} color={'black'} style={{ marginLeft: 9 }} />
+                            <Text style={styles.Bottom}>Sal. Adv</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={{ flex: 0.95 }} onPress={() => navigation.navigate("SalCalc")}>
+                            <SimpleLineIcons name='calculator' size={30} color={'black'} style={{ marginLeft: 9 }} />
+                            <Text style={styles.Bottom}>Sal. Calc</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={{ flex: 0.95 }} onPress={() => navigation.navigate("Ledger")}>
+                            <SimpleLineIcons name='notebook' size={30} color={'black'} style={{ marginLeft: 5 }} />
+                            <Text style={styles.Bottom}>Ledger</Text>
+                        </TouchableOpacity>
                     </View>
+                </View>
             </View>
         </SafeAreaView>
     );
-};
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        paddingHorizontal: 21,
-    },
-    cardviewBtnReset: {
-        backgroundColor: 'red',
-        borderRadius: 10,
-        height: 40,
-        width: 100,
-        elevation: 8,
-    },
-    cardviewBtnEdit: {
-        backgroundColor: 'orange',
-        borderRadius: 10,
-        height: 40,
-        width: 100,
-        elevation: 8,
-    },
-    cardviewBtnSubmit: {
-        backgroundColor: 'green',
-        borderRadius: 10,
-        height: 40,
-        width: 100,
-        elevation: 8,
-    },
-    BtnText: {
-        textAlign: 'center',
-        fontWeight: 'bold',
-        color: '#ffffff',
-        paddingTop: 8,
-    },
-    Emp_card: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'white',
-        borderRadius: 6,
-        height: 90,
-        width: 330,
-        padding: 10,
-        gap: 15,
-        marginTop: 8,
-    },
-    btn_container: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        gap: 12,
-        marginTop: 8,
-        marginLeft: 16,
-        width: 329,
-        marginBottom: 8,
-    },
-    list_container: {
-        margin: 15,
-        marginTop: 8,
-        gap: 10,
-        backgroundColor: '#D7FCF1',
-        width: 360,
-        height: 'auto',
-    },
-    Emp_image_style: {
-        height: 70,
-        width: 70,
-        borderRadius: 35,
-    },
-    Emp_name_style: {
-        color: 'black',
-        alignContent: 'center',
-        fontFamily: 'Poppins',
-        fontSize: 16,
-    },
-    Emp_id_style: {
-        color: '#6E6E6E',
-        alignContent: 'center',
-        fontFamily: 'Poppins',
-        fontSize: 16,
-    },
-    bg1: {
-        backgroundColor: '#D7FCF1',
-        width: 360,
-    },
-  
-    footerItemHolder:{
-        flexDirection: 'row',
-        justifyContent:'space-around',
-        width: 360,
-        gap:20,
-        margin:8,
-    },
-    
-    Bottom: {
-        color: 'black',
-        fontSize: 14,
-        fontFamily: 'poppins',
-    },
-      
-    navbarFooter:{
-        flexDirection: 'row',
-        backgroundColor: 'white',
-        width: 360,
-        height: 203,
-        elevation:8,
-    },
-    mainScreen:{
-        width: 360,
-        height: 800
-    },
-});
-*/
-return (
-    <SafeAreaView style={styles.bg1}>
-        <View style={styles.mainScreen}>
-            <View style={{ flex: 1 }}>
-                {loading ? (
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color="#0000ff" />
-                    </View>
-                ) : error ? (
-                    <View style={styles.errorContainer}>
-                        <Text style={styles.errorText}>{error}</Text>
-                    </View>
-                ) : (
-                    <ScrollView>
-                        <View style={styles.list_container}>
-                            {employees.map(({ emp_id, emp_name, iconAM, iconPM, tickColor, crossColor, imageUrl }) => (
-                                <View key={emp_id} style={styles.Emp_card}>
-                                    <Image
-                                        source={require('/Users/akashbalaji/RO_Project/Frontend/images/test1.jpeg')}
-                                        style={styles.Emp_image_style}
-                                    />
-                                    <View style={{ width: 80 }}>
-                                        <Text style={styles.Emp_name_style}>{emp_name}</Text>
-                                        <View style={{ flexDirection: 'row', gap: 4 }}>
-                                            <Text style={styles.Emp_id_style}>Emp_id:</Text>
-                                            <Text style={styles.Emp_name_style}>{emp_id}</Text>
-                                        </View>
-                                    </View>
-                                    <View style={{ gap: 5, marginLeft: 65 }}>
-                                        <View style={{ marginLeft: 3, flexDirection: 'row', gap: 17, alignSelf: 'flex-start' }}>
-                                            <TouchableOpacity onPress={() => toggleTickColor(emp_id)}>
-                                                <FontAwesome name='check' size={28} color={tickColor} />
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => toggleCrossColor(emp_id)}>
-                                                <FontAwesome name='remove' size={28} color={crossColor} />
-                                            </TouchableOpacity>
-                                        </View>
-                                        <View style={{ marginTop: 8 }}>
-                                            <View style={{ marginLeft: 2, flexDirection: 'row', gap: 15, alignSelf: 'flex-start' }}>
-                                                <TouchableOpacity onPress={() => toggleIconAM(emp_id)}>
-                                                    <Feather name={iconAM} size={28} color="#000" />
-                                                </TouchableOpacity>
-                                                <TouchableOpacity onPress={() => toggleIconPM(emp_id)}>
-                                                    <Feather name={iconPM} size={28} color="#000" />
-                                                </TouchableOpacity>
-                                            </View>
-                                            <View style={{ marginLeft: 5, flexDirection: 'row', gap: 22 }}>
-                                                <Text style={{ color: 'black' }}>AM</Text>
-                                                <Text style={{ color: 'black' }}>PM</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </View>
-                            ))}
-                        </View>
-
-                        <View style={styles.btn_container}>
-                            <TouchableOpacity style={styles.cardviewBtnReset} onPress={resetEmployees}>
-                                <Text style={styles.BtnText}>Reset</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.cardviewBtnEdit} onPress={fetchAttendanceData}>
-                                <Text style={styles.BtnText}>Edit</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.cardviewBtnSubmit} onPress={submitData}>
-                                <Text style={styles.BtnText}>Submit</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </ScrollView>
-                )}
-            </View>
-            <View style={styles.navbarFooter}>
-                <View style={styles.footerItemHolder}>
-                    <TouchableOpacity style={{ flex: 0.7 }} onPress={() => navigation.navigate("Home")}>
-                        <Octicons name='home' size={30} color={'black'} style={{ marginLeft: 5 }} />
-                        <Text style={styles.Bottom}>Home</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ flex: 1.2 }} onPress={() => navigation.navigate("Payroll")}>
-                        <MaterialCommunityIcons name='notebook-edit-outline' size={30} color={'black'} style={{ marginLeft: 20 }} />
-                        <Text style={styles.Bottom}>Attendance</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ flex: 0.9 }} onPress={() => navigation.navigate("SalAdv")}>
-                        <FontAwesome5 name='coins' size={30} color={'black'} style={{ marginLeft: 9 }} />
-                        <Text style={styles.Bottom}>Sal. Adv</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ flex: 0.95 }} onPress={() => navigation.navigate("SalCalc")}>
-                        <SimpleLineIcons name='calculator' size={30} color={'black'} style={{ marginLeft: 9 }} />
-                        <Text style={styles.Bottom}>Sal. Calc</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ flex: 0.95 }} onPress={() => navigation.navigate("Ledger")}>
-                        <SimpleLineIcons name='notebook' size={30} color={'black'} style={{ marginLeft: 5 }} />
-                        <Text style={styles.Bottom}>Ledger</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </View>
-    </SafeAreaView>
-);
 };
 
 const styles = StyleSheet.create({

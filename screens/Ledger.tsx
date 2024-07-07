@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Alert,
     Button,
@@ -15,17 +15,97 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import { Dropdown } from 'react-native-element-dropdown';
 
 type LedgerProps = NativeStackScreenProps<RootStackParamList, 'Ledger'> 
 
+type ItemType = {
+    label: string;
+    value: string;
+};
+
+
 const Ledger = ({navigation}:LedgerProps) => {
+    const [value, setValue] = useState<string | null>(null);
+    const [dropdownData, setDropdownData] = useState<ItemType[]>([]);
+
     function onPressButton(text: string) {
         Alert.alert('You tapped ' + text);
       }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch('https://hchjn6x7-8000.inc1.devtunnels.ms/get-data'); // Replace with your actual API URL
+                const dataString = await response.json();
+                const data = JSON.parse(dataString);
+                console.log('Parsed data:', data);
+                const formattedData = data.map((item: any) => ({
+                    label: item.emp_name,
+                    value: item.emp_id.toString(),
+                }));
+                setDropdownData(formattedData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                Alert.alert('Error', 'Failed to fetch data. Try again later.');
+            }
+        };
+  
+        fetchData();
+    }, []);
+
+    const renderItem = (item: ItemType) => {
+        return (
+          <View style={styles2.item}>
+            <Text style={styles2.textItem}>{item.label}</Text>
+            {item.value === value && (
+              <AntDesign
+                style={styles2.icon}
+                color="black"
+                name="Safety"
+                size={20}
+              />
+            )}
+          </View>
+        );
+    };
     return(
         <SafeAreaView style={styles.bg1}>
             <View style={styles.mainScreen}>
                 <ScrollView>
+
+                    <View style={styles.Emp_card}> 
+                        <Dropdown
+                            style={styles2.dropdown}
+                            placeholderStyle={styles2.Emp_nameStyle}
+                            selectedTextStyle={styles2.Emp_nameStyle}
+                            inputSearchStyle={styles2.inputSearchStyle}
+                            iconStyle={styles2.iconStyle}
+                            data={dropdownData}
+                            search
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            placeholder="Select employee"
+                            searchPlaceholder="Search..."
+                            value={value}
+                            onChange={(item: ItemType) => {
+                                setValue(item.value);
+                            }}
+                            renderLeftIcon={() => (
+                                <AntDesign style={styles2.icon} color="black" name="Safety" size={20} />
+                            )}
+                            renderItem={renderItem}
+                        />
+                        <View style={{flexDirection:'row', width:300, gap:21}}>
+                            <Text style={styles.Emp_header_text}>S.No</Text>
+                            <Text style={styles.Emp_header_text}>Date</Text>
+                            <Text style={styles.Emp_header_text}>MOP</Text>
+                            <Text style={styles.Emp_header_text}>Amount</Text>
+                        </View>
+                    </View>
+
                     <View style={styles.btn_container}>
                         <TouchableOpacity style={styles.cardviewBtnReset} onPress={()=>onPressButton("Reset")}>
                             <Text style={styles.BtnText}>Reset</Text>
@@ -106,15 +186,15 @@ const styles = StyleSheet.create({
         paddingTop: 8,
     },
     Emp_card: {
-        flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: 'white',
         borderRadius: 6,
-        height: 90,
+        height: 100,
         width: 330,
         padding: 10,
-        gap: 15,
+        gap: 5,
         marginTop: 8,
+        marginLeft:15
     },
     btn_container: {
         flexDirection: 'row',
@@ -133,28 +213,15 @@ const styles = StyleSheet.create({
         width: 360,
         height: 'auto',
     },
-    Emp_image_style: {
-        height: 70,
-        width: 70,
-        borderRadius: 35,
-    },
-    Emp_name_style: {
-        color: 'black',
-        alignContent: 'center',
-        fontFamily: 'Poppins',
-        fontSize: 16,
-    },
-    Emp_id_style: {
-        color: '#6E6E6E',
-        alignContent: 'center',
-        fontFamily: 'Poppins',
-        fontSize: 16,
-    },
     bg1: {
         backgroundColor: '#D7FCF1',
         width: 360,
     },
-  
+    Emp_header_text:{
+        fontSize:16,
+        color:'black',
+        width:60,
+    },
     footerItemHolder:{
         flexDirection: 'row',
         justifyContent:'space-around',
@@ -181,5 +248,57 @@ const styles = StyleSheet.create({
         height: 800
     },
 });
+
+const styles2 = StyleSheet.create({
+    dropdown: {
+      margin: 5,
+      height: 50,
+      width:300,
+      backgroundColor: 'white',
+      borderRadius: 12,
+      padding: 12,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 1.41,
+  
+      elevation: 2,
+    },
+    icon: {
+      marginRight: 5,
+    },
+    item: {
+      padding: 17,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    textItem: {
+      flex: 1,
+      fontSize: 16,
+      color:'black'
+    },
+    Emp_nameStyle:{
+      fontSize:16,
+      color:'black'
+    },
+    placeholderStyle: {
+      fontSize: 16,
+    },
+    selectedTextStyle: {
+      fontSize: 16,
+    },
+    iconStyle: {
+      width: 20,
+      height: 20,
+    },
+    inputSearchStyle: {
+      height: 40,
+      fontSize: 16,
+    },
+  });
 
 export default Ledger;
