@@ -36,27 +36,99 @@ const SalAdv = ({navigation}:SalAdvProps) => {
     const [dropdownData, setDropdownData] = useState<ItemType[]>([]);
     const [value, setValue] = useState<string | null>(null);
     const [number, onChangeNumber] = React.useState('');
+    const [isOthersSelected, setIsOthersSelected] = useState(false);
+    const [selectedId, setSelectedId] = useState<string | undefined>();
+    const [selectedIdMOP, setSelectedIdMOP] = useState<string | undefined>();
+    const [selectCom, setselectCom] = useState<string | undefined>();
+    const [text, onChangeText] = React.useState('');
+    const [due, setDue] = useState<number | undefined>(undefined);
+    const selectedEmployee = dropdownData.find((item) => item.value === value);
+
 
     useEffect(() => {
-      const fetchData = async () => {
-          try {
-              const response = await fetch('https://hchjn6x7-8000.inc1.devtunnels.ms/get-data'); // Replace with your actual API URL
-              const dataString = await response.json();
-              const data = JSON.parse(dataString);
-              console.log('Parsed data:', data);
-              const formattedData = data.map((item: any) => ({
-                  label: item.emp_name,
-                  value: item.emp_id.toString(),
-              }));
-              setDropdownData(formattedData);
-          } catch (error) {
-              console.error('Error fetching data:', error);
-              Alert.alert('Error', 'Failed to fetch data. Try again later.');
-          }
-      };
+        const fetchData = async () => {
+            try {
+                const response = await fetch('https://hchjn6x7-8000.inc1.devtunnels.ms/get-data'); // Replace with your actual API URL
+                const dataString = await response.json();
+                const data = JSON.parse(dataString);
+                console.log('Parsed data:', data);
+                const formattedData = data.map((item: any) => ({
+                    label: item.emp_name,
+                    value: item.emp_id.toString(),
+                }));
+                setDropdownData(formattedData);
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                Alert.alert('Error', 'Failed to fetch data. Try again later.');
+            }
+        };
 
-      fetchData();
-  }, []);
+        fetchData();
+    }, []);
+
+    /*
+    useEffect(() => {
+        const fetchDataDues = async () => {
+            if (!selectedEmployee) return;
+            try {
+                const response = await fetch(`https://hchjn6x7-8000.inc1.devtunnels.ms/get-due?data=${selectedEmployee.value}`); // Replace with your actual API URL
+                const data = await response.json();
+                console.log('Parsed data (Emp_due):', data);
+                
+                // Update state with fetched due
+                const dueAmount = parseFloat(data.dues);
+                if (isNaN(dueAmount)) {
+                    throw new Error('Invalid due amount received from server');
+                }
+
+                // Update state with fetched due
+                setDue(dueAmount);
+    
+            } catch (error) {
+                console.error('Error fetching dues:', error);
+                Alert.alert('Error', 'Failed to fetch dues. Try again later.');
+            }
+        };
+    
+        fetchDataDues();
+    }, [selectedEmployee]);
+    */
+
+    useEffect(() => {
+        const fetchDataDues = async () => {
+            if (!selectedEmployee) return;
+            try {
+                const response = await fetch(`https://hchjn6x7-8000.inc1.devtunnels.ms/get-due?data=${selectedEmployee.value}`); // Replace with your actual API URL
+                const data = await response.json();
+                console.log('Parsed data (Emp_due):', data);
+    
+                // Check if data is an array and has at least one object
+                if (Array.isArray(data) && data.length > 0) {
+                    // Access the first object in the array (assuming only one object is returned)
+                    const parsedBody = JSON.parse(data[0].body);
+    
+                    // Extract dues value
+                    const dueAmount = parseFloat(parsedBody.dues);
+                    if (isNaN(dueAmount)) {
+                        throw new Error('Invalid due amount received from server');
+                    }
+    
+                    // Update state with fetched due
+                    setDue(dueAmount);
+                } else {
+                    throw new Error('Invalid response format');
+                }
+    
+            } catch (error) {
+                console.error('Error fetching dues:', error);
+                Alert.alert('Error', 'Failed to fetch dues. Try again later.');
+            }
+        };
+    
+        fetchDataDues();
+    }, [selectedEmployee]);
+    
 
     const renderItem = (item: ItemType) => {
         return (
@@ -74,76 +146,130 @@ const SalAdv = ({navigation}:SalAdvProps) => {
         );
     };
 
-
     const radioButtons = useMemo(() => ([
       {
-          id: '1', // acts as primary key, should be unique and non-empty string
+          id: 'Advance', // acts as primary key, should be unique and non-empty string
           label: 'Advance',
           value: 'option1'
       },
       {
-          id: '2',
+          id: 'Recovery',
           label: 'Recovery',
           value: 'option2'
       }
     ]), []);
 
-    const [selectedId, setSelectedId] = useState<string | undefined>();
-    const [selectedIdMOP, setSelectedIdMOP] = useState<string | undefined>();
-    const [selectCom, setselectCom] = useState<string | undefined>();
-    const [text, onChangeText] = React.useState('');
-
-
-
     const MOPBtns: RadioButtonProps[] = useMemo(() => ([
       {
-          id: '1', // acts as primary key, should be unique and non-empty string
+          id: 'Cash', // acts as primary key, should be unique and non-empty string
           label: 'Cash',
           value: 'option1'
       },
       {
-        id: '2', // acts as primary key, should be unique and non-empty string
+        id: 'Gpay', // acts as primary key, should be unique and non-empty string
         label: 'Gpay',
         value: 'option2'
       },
       {
-          id: '3',
+          id: 'PayTM',
           label: 'PayTM',
           value: 'option3'
       }
-  ]), []);
+    ]), []);
 
-  const MOPBtns2: RadioButtonProps[] = useMemo(() => ([
-    {
-        id: '4', // acts as primary key, should be unique and non-empty string
-        label: 'NEFT',
-        value: 'option4'
-    },
-    {
-      id: '5', // acts as primary key, should be unique and non-empty string
-      label: 'Cheque',
-      value: 'option5'
-    }
-]), []);
+    const MOPBtns2: RadioButtonProps[] = useMemo(() => ([
+        {
+            id: 'NEFT', // acts as primary key, should be unique and non-empty string
+            label: 'NEFT',
+            value: 'option4'
+        },
+        {
+        id: 'Cheque', // acts as primary key, should be unique and non-empty string
+        label: 'Cheque',
+        value: 'option5'
+        }
+    ]), []);
 
-  const Comments: RadioButtonProps[] = useMemo(() => ([
-    {
-        id: '1', // acts as primary key, should be unique and non-empty string
-        label: 'Salary Advance',
-        value: 'option1'
-    },
-    {
-      id: '2', // acts as primary key, should be unique and non-empty string
-      label: 'Shortage',
-      value: 'option2'
-    },
-    {
-      id: '3', // acts as primary key, should be unique and non-empty string
-      label: 'Others',
-      value: 'option3'
-    }
-  ]), []);
+    const Comments: RadioButtonProps[] = useMemo(() => ([
+        {
+            id: 'Salary Advance', // acts as primary key, should be unique and non-empty string
+            label: 'Salary Advance',
+            value: 'option1'
+        },
+        {
+        id: 'Shortage', // acts as primary key, should be unique and non-empty string
+        label: 'Shortage',
+        value: 'option2'
+        },
+        {
+        id: 'Others', // acts as primary key, should be unique and non-empty string
+        label: 'Others',
+        value: 'option3'
+        }
+    ]), []);
 
+    const submitData = async () => {
+        try {
+            const currentDate = new Date().toISOString().split('T')[0];
+            let msg;
+            
+            console.log('Due:', due, 'Type:', typeof due);
+            console.log('Number:', number, 'Type:', typeof number);
+            var actualDue = Number(due)-Number(number);
+            console.log('Actual Due:', actualDue);
+            if(selectCom == "Others"){
+            msg = text;
+            }else{
+            msg = selectCom;
+            }
+            const employeeData = {
+                Emp_id: Number(selectedEmployee?.value),
+                Company_id: 101,
+                Adv_rec: selectedId,
+                MOP: selectedIdMOP,
+                Description: msg,
+                amount: Number(number),
+                submitted_date: currentDate,
+                Txn_date: currentDate,
+                dues: due ?? 0.0
+            };
+
+            const response = await fetch('https://hchjn6x7-8000.inc1.devtunnels.ms/Txn', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(employeeData),
+            });
+
+            if (response.ok) {
+                const json = await response.json();
+                console.log('Response from server:', json);
+                Alert.alert('Success', 'Data submitted successfully');
+                resetForm();
+            } else {
+                throw new Error('Failed to submit data');
+            }
+        } catch (error) {
+            console.error('Error submitting data:', error);
+            Alert.alert('Error', 'Error submitting data');
+        }
+    };
+
+    const resetForm = () => {
+        setValue(null);
+        setSelectedId(undefined);
+        setSelectedIdMOP(undefined);
+        setselectCom(undefined);
+        onChangeNumber('');
+        onChangeText('');
+        setIsOthersSelected(false);
+    };
+    
+    const handleCommentChange = (selectedId: string | undefined) => {
+        setselectCom(selectedId);
+        setIsOthersSelected(selectedId === 'Others');
+    };
 
 
     return(
@@ -197,18 +323,18 @@ const SalAdv = ({navigation}:SalAdvProps) => {
                           <Text style={{color:'black', fontSize:18, textAlign:'left'}}>Mode of Payment</Text>
                           <View style={{flexDirection: 'column', gap:10}}>
                             <RadioGroup 
-                                  radioButtons={MOPBtns} 
-                                  onPress={setSelectedIdMOP}
-                                  selectedId={selectedIdMOP}
-                                  containerStyle={{flexDirection: 'row', alignItems:'flex-start'}}
-                                  labelStyle={styles.label}
+                                radioButtons={MOPBtns} 
+                                onPress={setSelectedIdMOP}
+                                selectedId={selectedIdMOP}
+                                containerStyle={{flexDirection: 'row', alignItems:'flex-start'}}
+                                labelStyle={styles.label}
                             />
                             <RadioGroup 
-                                  radioButtons={MOPBtns2} 
-                                  onPress={setSelectedIdMOP}
-                                  selectedId={selectedIdMOP}
-                                  containerStyle={{flexDirection: 'row', alignItems:'flex-start'}}
-                                  labelStyle={styles.label}
+                                radioButtons={MOPBtns2} 
+                                onPress={setSelectedIdMOP}
+                                selectedId={selectedIdMOP}
+                                containerStyle={{flexDirection: 'row', alignItems:'flex-start'}}
+                                labelStyle={styles.label}
                             />
                           </View>
                         </View>
@@ -216,29 +342,31 @@ const SalAdv = ({navigation}:SalAdvProps) => {
                           <Text style={{color:'black', fontSize:18, textAlign:'left'}}>Comments</Text>
                           <View style={{flexDirection: 'row', gap:10}}>
                             <RadioGroup 
-                                  radioButtons={Comments} 
-                                  onPress={setselectCom}
-                                  selectedId={selectCom}
-                                  containerStyle={{flexDirection: 'column', gap:8, alignItems:'flex-start'}}
-                                  labelStyle={styles.label}
+                                radioButtons={Comments} 
+                                onPress={handleCommentChange}
+                                selectedId={selectCom}
+                                containerStyle={{flexDirection: 'column', gap:8, alignItems:'flex-start'}}
+                                labelStyle={styles.label}
                             />
                           </View>
                         </View>
                         <TextInput
-                              style={{color: 'black',
-                                height: 80,
-                                width: 300,
-                                borderColor: 'grey',
-                                borderRadius: 5,
-                                borderWidth: 1,
-                                fontSize: 16,
-                                marginTop: 10,
-                                paddingLeft: 10}}
-                              onChangeText={onChangeText}
-                              value={text}
-                              placeholderTextColor='black'
-                              textAlign='left'
-                              placeholder="Type..."
+                            editable={isOthersSelected}
+                            style={{color: 'black',
+                            height: 80,
+                            width: 300,
+                            borderColor: 'grey',
+                            borderRadius: 5,
+                            borderWidth: 1,
+                            fontSize: 16,
+                            marginTop: 10,
+                            paddingLeft: 10,
+                            opacity: isOthersSelected? 1: 0.2}}
+                            onChangeText={onChangeText}
+                            value={text}
+                            placeholderTextColor='black'
+                            textAlign='left'
+                            placeholder="Type..."
                         />
                   </View>
 
@@ -249,7 +377,7 @@ const SalAdv = ({navigation}:SalAdvProps) => {
                         <TouchableOpacity style={styles.cardviewBtnEdit} onPress={()=>onPressButton("Edit")}>
                             <Text style={styles.BtnText}>Edit</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.cardviewBtnSubmit} onPress={()=>onPressButton("Submit")}>
+                        <TouchableOpacity style={styles.cardviewBtnSubmit} onPress={submitData}>
                             <Text style={styles.BtnText}>Submit</Text>
                         </TouchableOpacity>
                   </View>
@@ -368,9 +496,9 @@ const styles = StyleSheet.create({
         height: 800
     },
     container: {
-      justifyContent: 'flex-start',
-      height:60,
-      width: 140
+        justifyContent: 'flex-start',
+        height:60,
+        width: 140
     },
     radioContainer: {
       flexDirection: 'column',
@@ -378,63 +506,63 @@ const styles = StyleSheet.create({
       // Default is row, change to column if needed
     },
     label: {
-      marginRight:20,
-      color: 'black',
-      fontSize:14 // Add some margin to the right of the label
+        marginRight:20,
+        color: 'black',
+        fontSize:14 // Add some margin to the right of the label
     }
 });
 
 const styles2 = StyleSheet.create({
-  dropdown: {
-    margin: 5,
-    height: 50,
-    width:300,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
+    dropdown: {
+        margin: 5,
+        height: 50,
+        width:300,
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: 12,
+        shadowColor: '#000',
+        shadowOffset: {
+        width: 0,
+        height: 1,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
 
-    elevation: 2,
-  },
-  icon: {
-    marginRight: 5,
-  },
-  item: {
-    padding: 17,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  textItem: {
-    flex: 1,
-    fontSize: 16,
-    color:'black'
-  },
-  Emp_nameStyle:{
-    fontSize:16,
-    color:'black'
-  },
-  placeholderStyle: {
-    fontSize: 16,
-  },
-  selectedTextStyle: {
-    fontSize: 16,
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
-  },
-  inputSearchStyle: {
-    color:'black',
-    height: 40,
-    fontSize: 16,
-  },
+        elevation: 2,
+    },
+    icon: {
+        marginRight: 5,
+    },
+    item: {
+        padding: 17,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    textItem: {
+        flex: 1,
+        fontSize: 16,
+        color:'black'
+    },
+    Emp_nameStyle:{
+        fontSize:16,
+        color:'black'
+    },
+    placeholderStyle: {
+        fontSize: 16,
+    },
+    selectedTextStyle: {
+        fontSize: 16,
+    },
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+    inputSearchStyle: {
+        color:'black',
+        height: 40,
+        fontSize: 16,
+    },
 });
 
 export default SalAdv;
