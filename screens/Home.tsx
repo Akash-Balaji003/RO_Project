@@ -22,7 +22,7 @@ const Home = ({navigation}:HomeProps) => {
 
     function onPressButton() {
         Alert.alert('You tapped a card!');
-      }
+    }
     
   return(
         <SafeAreaView style={styles.bg1}>
@@ -31,72 +31,72 @@ const Home = ({navigation}:HomeProps) => {
                     <View style={styles.verticalContainer}>
 
                         <View style={styles.rowContainer}>
-                        <TouchableOpacity onPress={()=>navigation.navigate("Payroll")} style={styles.cardview}>
-                            <Text style={styles.cardTitle}>Payroll</Text>
-                            <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image}/>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={()=>navigation.navigate("Sales")} style={styles.cardview}>
-                            <Text style={styles.cardTitle}>Sales</Text>
-                            <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
-                        </TouchableOpacity>
+                            <TouchableOpacity onPress={()=>navigation.navigate("Payroll")} style={styles.cardview}>
+                                <Text style={styles.cardTitle}>Payroll</Text>
+                                <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image}/>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={()=>navigation.navigate("Sales")} style={styles.cardview}>
+                                <Text style={styles.cardTitle}>Sales</Text>
+                                <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
+                            </TouchableOpacity>
                         </View>
 
 
                         <View style={[styles.rowContainer, {marginTop:15}]}>
-                        <TouchableOpacity onPress={()=>navigation.navigate("Credits")} style={styles.cardview}>
-                            <Text style={styles.cardTitle}>Credits</Text>
-                            <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
-                            <Text style={styles.cardTitle}>Purchase</Text>
-                            <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
-                        </TouchableOpacity>
+                            <TouchableOpacity onPress={()=>navigation.navigate("Credits")} style={styles.cardview}>
+                                <Text style={styles.cardTitle}>Credits</Text>
+                                <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
+                                <Text style={styles.cardTitle}>Purchase</Text>
+                                <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
+                            </TouchableOpacity>
                         </View>
 
 
                         <View style={[styles.rowContainer, {marginTop:15}]}>
-                        <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
-                            <Text style={styles.cardTitle}>Inventory</Text>
-                            <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
-                            <Text style={styles.cardTitle}>Audit</Text>
-                            <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
-                        </TouchableOpacity>
+                            <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
+                                <Text style={styles.cardTitle}>Inventory</Text>
+                                <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
+                                <Text style={styles.cardTitle}>Audit</Text>
+                                <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
+                            </TouchableOpacity>
                         </View>
 
 
                         <View style={[styles.rowContainer, {marginTop:15}]}>
-                        <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
-                            <Text style={styles.cardTitle}>Reports</Text>
-                            <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
-                            <Text style={styles.cardTitle}>Docs Upload</Text>
-                            <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
-                        </TouchableOpacity>
+                            <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
+                                <Text style={styles.cardTitle}>Reports</Text>
+                                <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
+                                <Text style={styles.cardTitle}>Docs Upload</Text>
+                                <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
+                            </TouchableOpacity>
                         </View>
 
                         <View style={[styles.rowContainer, {marginTop:15}]}>
-                        <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
-                            <Text style={styles.cardTitle}>Alert</Text>
-                            <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
-                            <Text style={styles.cardTitle}>Setup</Text>
-                            <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
-                        </TouchableOpacity>
+                            <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
+                                <Text style={styles.cardTitle}>Alert</Text>
+                                <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
+                                <Text style={styles.cardTitle}>Setup</Text>
+                                <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
+                            </TouchableOpacity>
                         </View>
 
                         <View style={[styles.rowContainer, {marginTop:15}]}>
-                        <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
-                            <Text style={styles.cardTitle}>Help</Text>
-                            <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
-                            <Text style={styles.cardTitle}>Help</Text>
-                            <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
-                        </TouchableOpacity>
+                            <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
+                                <Text style={styles.cardTitle}>Help</Text>
+                                <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={onPressButton} style={styles.cardview}>
+                                <Text style={styles.cardTitle}>Help</Text>
+                                <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
+                            </TouchableOpacity>
                         </View>
 
                     </View>

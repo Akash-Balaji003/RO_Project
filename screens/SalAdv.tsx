@@ -67,34 +67,6 @@ const SalAdv = ({navigation}:SalAdvProps) => {
         fetchData();
     }, []);
 
-    /*
-    useEffect(() => {
-        const fetchDataDues = async () => {
-            if (!selectedEmployee) return;
-            try {
-                const response = await fetch(`https://hchjn6x7-8000.inc1.devtunnels.ms/get-due?data=${selectedEmployee.value}`); // Replace with your actual API URL
-                const data = await response.json();
-                console.log('Parsed data (Emp_due):', data);
-                
-                // Update state with fetched due
-                const dueAmount = parseFloat(data.dues);
-                if (isNaN(dueAmount)) {
-                    throw new Error('Invalid due amount received from server');
-                }
-
-                // Update state with fetched due
-                setDue(dueAmount);
-    
-            } catch (error) {
-                console.error('Error fetching dues:', error);
-                Alert.alert('Error', 'Failed to fetch dues. Try again later.');
-            }
-        };
-    
-        fetchDataDues();
-    }, [selectedEmployee]);
-    */
-
     useEffect(() => {
         const fetchDataDues = async () => {
             if (!selectedEmployee) return;
@@ -503,12 +475,11 @@ const styles = StyleSheet.create({
     radioContainer: {
       flexDirection: 'column',
       width: 140
-      // Default is row, change to column if needed
     },
     label: {
         marginRight:20,
         color: 'black',
-        fontSize:14 // Add some margin to the right of the label
+        fontSize:14 
     }
 });
 

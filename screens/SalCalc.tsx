@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     Alert,
     Button,
@@ -6,9 +6,11 @@ import {
     ScrollView,
     StyleSheet,
     Text,
+    TextInput,
     TouchableOpacity,
     View,
 } from 'react-native';
+import { Left } from 'react-native-component-separator';
 import {NativeStackScreenProps} from '@react-navigation/native-stack'
 import {RootStackParamList} from '../App'
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
@@ -17,6 +19,9 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Octicons from 'react-native-vector-icons/Octicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Dropdown } from 'react-native-element-dropdown';
+import { RadioButtonProps, RadioGroup } from 'react-native-radio-buttons-group';
+import { useDate2 } from '../components/DateContext2';
+import { format } from 'date-fns';
 
 type SalCalcProps = NativeStackScreenProps<RootStackParamList, 'SalCalc'> 
 
@@ -25,21 +30,20 @@ type ItemType = {
     value: string;
 };
 
-const data = [
-    { label: 'Item 1', value: '1' },
-    { label: 'Item 2', value: '2' },
-    { label: 'Item 3', value: '3' },
-    { label: 'Item 4', value: '4' },
-    { label: 'Item 5', value: '5' },
-    { label: 'Item 6', value: '6' },
-    { label: 'Item 7', value: '7' },
-    { label: 'Item 8', value: '8' },
-  ];
-
 const SalCalc = ({navigation}:SalCalcProps) => {
+
+    const { date2 } = useDate2();
+    const formattedDate = format(date2, 'MM');
 
     const [value, setValue] = useState<string | null>(null);
     const [dropdownData, setDropdownData] = useState<ItemType[]>([]);
+    const [selectCom, setselectCom] = useState<string | undefined>();
+    const [number, onChangeNumber] = React.useState('');
+    const [Recnumber, onChangeRecNumber] = React.useState('');
+    const [text, onChangeText] = React.useState('');
+    const [due, setDue] = useState<number | undefined>(undefined);
+    const selectedEmployee = dropdownData.find((item) => item.value === value);
+
 
     function onPressButton(text: string) {
         Alert.alert('You tapped ' + text);
@@ -48,7 +52,7 @@ const SalCalc = ({navigation}:SalCalcProps) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('https://hchjn6x7-8000.inc1.devtunnels.ms/get-data'); // Replace with your actual API URL
+                const response = await fetch('https://hchjn6x7-8000.inc1.devtunnels.ms/get-data');
                 const dataString = await response.json();
                 const data = JSON.parse(dataString);
                 console.log('Parsed data:', data);
@@ -65,6 +69,72 @@ const SalCalc = ({navigation}:SalCalcProps) => {
   
         fetchData();
     }, []);
+
+    useEffect(() => {
+        const fetchDataDues = async () => {
+            if (!selectedEmployee) return;
+            try {
+                const response = await fetch(`https://hchjn6x7-8000.inc1.devtunnels.ms/get-due?data=${selectedEmployee.value}`); // Replace with your actual API URL
+                const data = await response.json();
+                console.log('Parsed data (Emp_due):', data);
+    
+                // Check if data is an array and has at least one object
+                if (Array.isArray(data) && data.length > 0) {
+                    // Access the first object in the array (assuming only one object is returned)
+                    const parsedBody = JSON.parse(data[0].body);
+    
+                    // Extract dues value
+                    const dueAmount = parseFloat(parsedBody.dues);
+                    if (isNaN(dueAmount)) {
+                        throw new Error('Invalid due amount received from server');
+                    }
+    
+                    // Update state with fetched due
+                    setDue(dueAmount);
+                } else {
+                    throw new Error('Invalid response format');
+                }
+    
+            } catch (error) {
+                console.error('Error fetching dues:', error);
+                Alert.alert('Error', 'Failed to fetch dues. Try again later.');
+            }
+        };
+    
+        fetchDataDues();
+    }, [selectedEmployee]);
+
+    /*
+    useEffect(() => {
+        const fetchDataAtt = async () => {
+            if (!selectedEmployee) return;
+            try {
+                const response = await fetch(`https://hchjn6x7-8000.inc1.devtunnels.ms/get-att-sal?data=${selectedEmployee.value}&data2=${formattedDate}`); // Replace with your actual API URL
+                const data = await response.json();
+                console.log('Parsed data (Emp_due):', data);
+    
+            } catch (error) {
+                console.error('Error fetching dues:', error);
+                Alert.alert('Error', 'Failed to fetch dues. Try again later.');
+            }
+        };
+    
+        fetchDataAtt();
+    }, [selectedEmployee]);
+    */
+
+    const Comments: RadioButtonProps[] = useMemo(() => ([
+        {
+            id: 'Cash', // acts as primary key, should be unique and non-empty string
+            label: 'Cash',
+            value: 'option1'
+        },
+        {
+        id: 'Online', // acts as primary key, should be unique and non-empty string
+        label: 'Online',
+        value: 'option2'
+        }
+    ]), []);
   
 
     const renderItem = (item: ItemType) => {
@@ -110,9 +180,96 @@ const SalCalc = ({navigation}:SalCalcProps) => {
                             )}
                             renderItem={renderItem}
                         />
-                        <View style={{flexDirection:'row', width:300, height:50, gap:10}}>
+                        <View style={{flexDirection:'row', width:300, height:30, gap:10}}>
                             <Text style={{color:'black', fontSize:20, width:170, paddingTop:2}}>Mode of payment</Text>
                             <Text style={{color:'black', fontSize:20, width:120, paddingTop:2}}>Days Worked</Text>
+                        </View>
+                        <View style={{flexDirection:'row', width:300, height:30, gap:62}}>
+                            <RadioGroup 
+                                radioButtons={Comments} 
+                                onPress={setselectCom}
+                                selectedId={selectCom}
+                                containerStyle={{flexDirection: 'row', gap:-15, alignItems:'flex-start', marginLeft:-10}}
+                                labelStyle={styles.label}
+                            />
+                            <Text style={{color:'#616161', fontSize:20, width:30, borderWidth:1, borderRadius:8, height:35, textAlign:'center', textAlignVertical:'center', marginTop:-5}}>{formattedDate}</Text>
+                        </View>
+                        <Left borderColor="#e0e0e0" color="#616161">Credits</Left>
+                        <View style={styles.Cred_deb}>
+                            <View style={styles.rowEntry}>
+                                <Text style={styles.displayText}>Basic</Text>
+                                <Text style={styles.displayArea}>00.00</Text>
+                            </View>
+                            <View style={[styles.rowEntry,{gap:123}]}>
+                                <Text style={styles.displayText}>DA</Text>
+                                <Text style={styles.displayArea}>00.00</Text>
+                            </View>
+                            <View style={[styles.rowEntry,{gap:4}]}>
+                                <Text style={[styles.displayText]}>No Leave Bonus</Text>
+                                <Text style={[styles.displayArea ]}>00.00</Text>
+                            </View>
+                            <View style={[styles.rowEntry,{gap:100}]}>
+                                <Text style={styles.displayText}>BATA</Text>
+                                <Text style={styles.displayArea}>00.00</Text>
+                            </View>
+                            <View style={[styles.rowEntry,{gap:39}]}>
+                                <Text style={[styles.displayText,{color:'black'}]}>Other Bonus</Text>
+                                <TextInput
+                                style={{color:'Black', height: 30, width:150, borderBlockColor:'grey', borderRadius:5, borderWidth:1, fontSize:18, paddingBottom:1}}
+                                onChangeText={onChangeNumber}
+                                value={number}
+                                placeholderTextColor='black'
+                                textAlign='right'
+                                placeholder="1000"
+                                keyboardType="numeric"
+                            />
+                            </View>
+                            <View style={[styles.rowEntry,{gap:42}]}>
+                                <Text style={styles.displayText}>Total Salary</Text>
+                                <Text style={styles.displayArea}>00.00</Text>
+                            </View>
+                        </View>
+                        <Left borderColor="#e0e0e0" color="#616161">Deductions</Left>
+                        <View style={styles.Cred_deb}>
+                            <View style={[styles.rowEntry,{gap:1}]}>
+                                <Text style={[styles.displayText,{fontSize:16.5, textAlignVertical:'center'}]}>BATA (Already paid)</Text>
+                                <Text style={styles.displayArea}>00.00</Text>
+                            </View>
+                            <View style={[styles.rowEntry,{gap:68}]}>
+                                <Text style={[styles.displayText,{color:'black'}]}>Recovery</Text>
+                                <TextInput
+                                    style={{color:'Black', height: 30, width:150, borderBlockColor:'grey', borderRadius:5, borderWidth:1, fontSize:18, paddingBottom:1}}
+                                    onChangeText={onChangeRecNumber}
+                                    value={Recnumber}
+                                    placeholderTextColor='black'
+                                    textAlign='right'
+                                    placeholder="1000"
+                                    keyboardType="numeric"
+                                />
+                            </View>
+                            <View style={[styles.rowEntry,{gap:1}]}>
+                                <Text style={[styles.displayText,{fontSize:20, textAlignVertical:'center'}]}>Salary to be paid</Text>
+                                <Text style={styles.displayArea}>00.00</Text>
+                            </View>
+                            <View style={[styles.rowEntry,{alignSelf:'center'}]}>
+                                <Text style={[styles.displayText,{textAlign:'center', paddingLeft:0, fontSize:18}]}>*Dues from employee Rs.{due}</Text>
+                            </View>
+                            <TextInput
+                            style={{color: 'black',
+                            height: 120,
+                            width: 300,
+                            borderColor: 'grey',
+                            borderRadius: 5,
+                            borderWidth: 1,
+                            fontSize: 16,
+                            marginTop:10,
+                            paddingLeft: 10}}
+                            onChangeText={onChangeText}
+                            value={text}
+                            placeholderTextColor='grey'
+                            textAlign='left'
+                            placeholder="P2B FUELS SALARY.."
+                        />
                         </View>
                     </View>
 
@@ -201,7 +358,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'white',
         borderRadius: 6,
-        height: 523,
+        height: 870,
         width: 330,
         padding: 10,
         gap: 15,
@@ -255,6 +412,38 @@ const styles = StyleSheet.create({
         width: 360,
         height: 800
     },
+    label: {
+        marginRight:-5,
+        color: 'black',
+        fontSize:14
+    },
+    Cred_deb:{
+        width:300,
+        height:270,
+        gap:15
+    },
+    displayArea:{
+        color:'#616161',
+        fontSize:20,
+        paddingRight:5,
+        borderWidth:1,
+        borderRadius:5,
+        width:150,
+        textAlign:'right',
+        textAlignVertical:'bottom'
+    },
+    displayText:{
+        color:'#616161',
+        fontSize:20,
+        paddingLeft:5
+        
+    },
+    rowEntry:{
+        flexDirection:'row', 
+        height:30, 
+        justifyContent:'flex-end', 
+        gap:100
+    }
 });
 
 const styles2 = StyleSheet.create({
