@@ -21,7 +21,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Dropdown } from 'react-native-element-dropdown';
 import { RadioButtonProps, RadioGroup } from 'react-native-radio-buttons-group';
 import { useDate2 } from '../components/DateContext2';
-import { format } from 'date-fns';
+import { format, getDaysInMonth } from 'date-fns';
 
 type SalCalcProps = NativeStackScreenProps<RootStackParamList, 'SalCalc'> 
 
@@ -33,7 +33,11 @@ type ItemType = {
 const SalCalc = ({navigation}:SalCalcProps) => {
 
     const { date2 } = useDate2();
-    const formattedDate = format(date2, 'MM');
+    const formattedDate = format(date2, 'yyyy-MM');
+    const year = format(date2, 'yyyy');
+    const month = format(date2, 'MM');
+    const daysInMonth = getDaysInMonth(new Date(parseInt(year), parseInt(month) - 1));
+    const [Working_days, setWorking_days] = useState<number | undefined>(undefined);
 
     const [value, setValue] = useState<string | null>(null);
     const [dropdownData, setDropdownData] = useState<ItemType[]>([]);
@@ -41,7 +45,17 @@ const SalCalc = ({navigation}:SalCalcProps) => {
     const [number, onChangeNumber] = React.useState('');
     const [Recnumber, onChangeRecNumber] = React.useState('');
     const [text, onChangeText] = React.useState('');
+
     const [due, setDue] = useState<number | undefined>(undefined);
+    const [Att, setAtt] = useState<number | undefined>(undefined);
+    const [Daily_wage, setDaily_wage] = useState<number | undefined>(undefined);
+    const [BasicPerMonth, setBasicPerMonth] = useState<number | undefined>(undefined);
+    const [Bata, setBata] = useState<number | undefined>(undefined);
+    const [DA_amt, setDA_amt] = useState<number | undefined>(undefined);
+    const [NoLeaveBonus, setNoLeaveBonus] = useState<number | undefined>(undefined);
+    const [Tot_sal, setTot_sal] =  useState<number | undefined>(undefined);
+    const [Sal_to_give, setSal_to_give] =  useState<number | undefined>(undefined);
+
     const selectedEmployee = dropdownData.find((item) => item.value === value);
 
 
@@ -104,24 +118,66 @@ const SalCalc = ({navigation}:SalCalcProps) => {
         fetchDataDues();
     }, [selectedEmployee]);
 
-    /*
     useEffect(() => {
         const fetchDataAtt = async () => {
             if (!selectedEmployee) return;
             try {
                 const response = await fetch(`https://hchjn6x7-8000.inc1.devtunnels.ms/get-att-sal?data=${selectedEmployee.value}&data2=${formattedDate}`); // Replace with your actual API URL
                 const data = await response.json();
-                console.log('Parsed data (Emp_due):', data);
-    
+                console.log('salary calc data:', data);
+
+                if (data && data.data && data.data.Total_Daily_Wage != null && data.data.Total_Attendance != null) {
+                    console.log('Total Daily Wage:', data.data.Total_Daily_Wage);
+                    console.log('Total Attendance:', data.data.Total_Attendance);
+                    console.log('Basic_Per_Month:', data.data.Basic_Per_Month);
+                    console.log('BATA:', data.data.BATA);
+                    console.log('DA_Percentage:', data.data.DA_Percentage);
+                    console.log('No_Leave_Bonus:', data.data.No_Leave_Bonus);
+                    const BPM_inp = data.data.Basic_Per_Month;
+                    const Att_code = data.data.Total_Attendance;
+                    const Bata_inp = data.data.BATA;
+                    const NLB_inp = data.data.No_Leave_Bonus;
+                    const DA_inp = data.data.DA_Percentage;
+                    if(data.data.Basic_Per_Month != 0){
+                        const Wage = ((BPM_inp / daysInMonth)*Att_code) ;
+                        setDaily_wage(Math.round(Wage));
+                        setDA_amt(Math.round((DA_inp / 100) * Wage));
+                    } else{
+                        const Wage = data.data.Total_Daily_Wage;
+                        setDaily_wage(Math.round(Wage));
+                        setDA_amt(Math.round((DA_inp / 100) * Wage));
+                    }
+
+                    setAtt(Att_code);
+                    setBasicPerMonth(BPM_inp);
+                    setBata(Bata_inp);
+                    setNoLeaveBonus(NLB_inp);
+
+                } else {
+                    console.error('Received data is not in the expected format:', data);
+                    Alert.alert('Error', 'Received data is not in the expected format');
+                }
+
             } catch (error) {
-                console.error('Error fetching dues:', error);
-                Alert.alert('Error', 'Failed to fetch dues. Try again later.');
+                console.error('Error fetching Att_sal:', error);
+                Alert.alert('Error', 'Failed to fetch att_sal. Try again later.');
             }
         };
-    
+
         fetchDataAtt();
-    }, [selectedEmployee]);
-    */
+    }, [selectedEmployee, date2]);
+
+    useEffect(() => {
+        const otherBonus = parseFloat(number) || 0;
+        const totalSalary = (NoLeaveBonus || 0) + (Bata || 0) + (DA_amt || 0) + (Daily_wage || 0) + otherBonus;
+        setTot_sal(totalSalary);
+    }, [NoLeaveBonus, Bata, DA_amt, Daily_wage, number]);
+
+    useEffect(() => {
+        const recNumber = parseFloat(Recnumber) || 0;
+        const endSalary = (Tot_sal || 0) - (Bata || 0) - recNumber;
+        setSal_to_give(endSalary);
+    }, [Tot_sal, Bata, Recnumber]);
 
     const Comments: RadioButtonProps[] = useMemo(() => ([
         {
@@ -192,30 +248,30 @@ const SalCalc = ({navigation}:SalCalcProps) => {
                                 containerStyle={{flexDirection: 'row', gap:-15, alignItems:'flex-start', marginLeft:-10}}
                                 labelStyle={styles.label}
                             />
-                            <Text style={{color:'#616161', fontSize:20, width:30, borderWidth:1, borderRadius:8, height:35, textAlign:'center', textAlignVertical:'center', marginTop:-5}}>{formattedDate}</Text>
+                            <Text style={{color:'#616161', fontSize:20, width:30, borderWidth:1, borderRadius:8, height:35, textAlign:'center', textAlignVertical:'center', marginTop:-5}}>{Att}</Text>
                         </View>
                         <Left borderColor="#e0e0e0" color="#616161">Credits</Left>
                         <View style={styles.Cred_deb}>
                             <View style={styles.rowEntry}>
                                 <Text style={styles.displayText}>Basic</Text>
-                                <Text style={styles.displayArea}>00.00</Text>
+                                <Text style={styles.displayArea}>{Daily_wage}</Text>
                             </View>
                             <View style={[styles.rowEntry,{gap:123}]}>
                                 <Text style={styles.displayText}>DA</Text>
-                                <Text style={styles.displayArea}>00.00</Text>
+                                <Text style={styles.displayArea}>{DA_amt}</Text>
                             </View>
                             <View style={[styles.rowEntry,{gap:4}]}>
                                 <Text style={[styles.displayText]}>No Leave Bonus</Text>
-                                <Text style={[styles.displayArea ]}>00.00</Text>
+                                <Text style={[styles.displayArea ]}>{NoLeaveBonus}</Text>
                             </View>
                             <View style={[styles.rowEntry,{gap:100}]}>
                                 <Text style={styles.displayText}>BATA</Text>
-                                <Text style={styles.displayArea}>00.00</Text>
+                                <Text style={styles.displayArea}>{Bata}</Text>
                             </View>
                             <View style={[styles.rowEntry,{gap:39}]}>
                                 <Text style={[styles.displayText,{color:'black'}]}>Other Bonus</Text>
                                 <TextInput
-                                style={{color:'Black', height: 30, width:150, borderBlockColor:'grey', borderRadius:5, borderWidth:1, fontSize:18, paddingBottom:1}}
+                                style={{color:'black', height: 30, width:150, borderBlockColor:'grey', borderRadius:5, borderWidth:1, fontSize:18, paddingBottom:1}}
                                 onChangeText={onChangeNumber}
                                 value={number}
                                 placeholderTextColor='black'
@@ -226,19 +282,19 @@ const SalCalc = ({navigation}:SalCalcProps) => {
                             </View>
                             <View style={[styles.rowEntry,{gap:42}]}>
                                 <Text style={styles.displayText}>Total Salary</Text>
-                                <Text style={styles.displayArea}>00.00</Text>
+                                <Text style={styles.displayArea}>{Tot_sal}</Text>
                             </View>
                         </View>
                         <Left borderColor="#e0e0e0" color="#616161">Deductions</Left>
                         <View style={styles.Cred_deb}>
                             <View style={[styles.rowEntry,{gap:1}]}>
                                 <Text style={[styles.displayText,{fontSize:16.5, textAlignVertical:'center'}]}>BATA (Already paid)</Text>
-                                <Text style={styles.displayArea}>00.00</Text>
+                                <Text style={styles.displayArea}>{Bata}</Text>
                             </View>
                             <View style={[styles.rowEntry,{gap:68}]}>
                                 <Text style={[styles.displayText,{color:'black'}]}>Recovery</Text>
                                 <TextInput
-                                    style={{color:'Black', height: 30, width:150, borderBlockColor:'grey', borderRadius:5, borderWidth:1, fontSize:18, paddingBottom:1}}
+                                    style={{color:'black', height: 30, width:150, borderBlockColor:'grey', borderRadius:5, borderWidth:1, fontSize:18, paddingBottom:1}}
                                     onChangeText={onChangeRecNumber}
                                     value={Recnumber}
                                     placeholderTextColor='black'
@@ -249,7 +305,7 @@ const SalCalc = ({navigation}:SalCalcProps) => {
                             </View>
                             <View style={[styles.rowEntry,{gap:1}]}>
                                 <Text style={[styles.displayText,{fontSize:20, textAlignVertical:'center'}]}>Salary to be paid</Text>
-                                <Text style={styles.displayArea}>00.00</Text>
+                                <Text style={styles.displayArea}>{Sal_to_give}</Text>
                             </View>
                             <View style={[styles.rowEntry,{alignSelf:'center'}]}>
                                 <Text style={[styles.displayText,{textAlign:'center', paddingLeft:0, fontSize:18}]}>*Dues from employee Rs.{due}</Text>
