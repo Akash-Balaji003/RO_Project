@@ -25,10 +25,26 @@ type ItemType = {
     value: string;
 };
 
+type TransactionType = {
+    Credit: number;
+    Debit: number;
+    Description: string;
+    Emp_dues: number;
+    MOP: string;
+    Ref_No_Cheque_No: string;
+    Txn_date: string;
+};
+
 
 const Ledger = ({navigation}:LedgerProps) => {
     const [value, setValue] = useState<string | null>(null);
     const [dropdownData, setDropdownData] = useState<ItemType[]>([]);
+    const selectedEmployee = dropdownData.find((item) => item.value === value);
+
+    const [transactionData, setTransactionData] = useState<TransactionType[]>([]);
+
+    const [expandedCard, setExpandedCard] = useState<number | null>(null);
+
 
     function onPressButton(text: string) {
         Alert.alert('You tapped ' + text);
@@ -54,6 +70,28 @@ const Ledger = ({navigation}:LedgerProps) => {
   
         fetchData();
     }, []);
+
+    useEffect(() => {
+        const fetchDataTxn = async () => {
+            if (!selectedEmployee) return;
+            try {
+                const response = await fetch(`https://hchjn6x7-8000.inc1.devtunnels.ms/get-Txn?data=${selectedEmployee.value}`); // Replace with your actual API URL
+                const data = await response.json();
+                console.log('Parsed data (Ledger):', data);
+                setTransactionData(data.data);
+    
+            } catch (error) {
+                console.error('Error fetching Txn:', error);
+                Alert.alert('Error', 'Failed to fetch Txn. Try again later.');
+            }
+        };
+    
+        fetchDataTxn();
+    }, [selectedEmployee]);
+
+    const toggleExpand = (index: number) => {
+        setExpandedCard(expandedCard === index ? null : index);
+    };
 
     const renderItem = (item: ItemType) => {
         return (
@@ -98,13 +136,42 @@ const Ledger = ({navigation}:LedgerProps) => {
                             )}
                             renderItem={renderItem}
                         />
-                        <View style={{flexDirection:'row', width:300, gap:21}}>
-                            <Text style={styles.Emp_header_text}>S.No</Text>
-                            <Text style={styles.Emp_header_text}>Date</Text>
-                            <Text style={styles.Emp_header_text}>MOP</Text>
-                            <Text style={styles.Emp_header_text}>Amount</Text>
+                        <View style={{flexDirection:'row', width:300, gap:31, marginLeft:-25}}>
+                            <Text style={[styles.Emp_text,{width:82, fontWeight: '500'}]}>Date</Text>
+                            <Text style={[styles.Emp_text,{width:50, marginLeft:-5, fontWeight: '500'}]}>Credit</Text>
+                            <Text style={[styles.Emp_text,{width:50, marginLeft:-15, fontWeight: '500'}]}>Debit</Text>
+                            <Text style={[styles.Emp_text,{marginLeft:-20, fontWeight: '500'}]}>Balance</Text>
                         </View>
                     </View>
+
+                    {transactionData.map((transaction, index) => (
+                        <View key={index} style={[styles.Emp_data_card]}>
+                            <View style={{ flexDirection: 'row', width: 300, gap: 25, marginLeft: -15 }}>
+                                <Text style={[styles.Emp_text, { width: 82 }]}>{transaction.Txn_date}</Text>
+                                <Text style={[styles.Emp_text, { width: 50, marginLeft: -5 }]}>{transaction.Credit}</Text>
+                                <Text style={[styles.Emp_text, { width: 50, marginLeft: -8 }]}>{transaction.Debit}</Text>
+                                <Text style={[styles.Emp_text, { width: 50, marginLeft: -10 }]}>{transaction.Emp_dues}</Text>
+                                <TouchableOpacity onPress={() => toggleExpand(index)}>
+                                    <AntDesign color="black" name={expandedCard === index ? "down" : "right"} size={17} style={{ marginLeft: -8, marginTop: 3 }} />
+                                </TouchableOpacity>
+                            </View>
+                            {expandedCard === index && (
+                                <View style={styles.expandedContent}>
+                                    <View style={styles.expandedContent}>
+                                        <Text style={styles.expandedText}>
+                                            <Text style={{fontWeight: '500'}}>Description:</Text> {transaction.Description}
+                                        </Text>
+                                        <Text style={styles.expandedText}>
+                                            <Text style={{fontWeight: '500',}}>Mode of Payment:</Text> {transaction.MOP}
+                                        </Text>
+                                        <Text style={styles.expandedText}>
+                                            <Text style={{fontWeight: '500',}}>Ref No/Cheque No:</Text> {transaction.Ref_No_Cheque_No}
+                                        </Text>
+                                    </View>
+                                </View>
+                            )}
+                        </View>
+                    ))}
 
                     <View style={styles.btn_container}>
                         <TouchableOpacity style={styles.cardviewBtnReset} onPress={()=>onPressButton("Reset")}>
@@ -196,6 +263,29 @@ const styles = StyleSheet.create({
         marginTop: 8,
         marginLeft:15
     },
+    Emp_data_card: {
+        alignItems: 'center',
+        backgroundColor: 'white',
+        borderRadius: 6,
+        minHeight: 50,
+        width: 330,
+        padding: 10,
+        paddingTop:15,
+        gap: 5,
+        marginTop: 8,
+        marginLeft:15
+    },
+    expandedContent: {
+        marginTop: 10,
+        gap:5
+    },
+    expandedText: {
+        fontSize: 16,
+        color: 'black',
+        textAlign: 'left',
+        marginTop: 2,
+        marginLeft:-70
+    },
     btn_container: {
         flexDirection: 'row',
         justifyContent: 'space-around',
@@ -221,6 +311,13 @@ const styles = StyleSheet.create({
         fontSize:16,
         color:'black',
         width:60,
+    },
+    Emp_text:{
+        fontSize:16,
+        color:'black',
+        width:60,
+        textAlign:'center',
+        textAlignVertical:'center'
     },
     footerItemHolder:{
         flexDirection: 'row',
@@ -299,6 +396,6 @@ const styles2 = StyleSheet.create({
       height: 40,
       fontSize: 16,
     },
-  });
+});
 
 export default Ledger;

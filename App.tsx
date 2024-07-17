@@ -5,8 +5,8 @@ import Evillcons from 'react-native-vector-icons/EvilIcons';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import { format } from 'date-fns';
-import { DateProvider, useDate } from '/Users/akashbalaji/RO_Project/Frontend/components/DateContext.tsx'; // Import useDate
-import { DateProvider2, useDate2 } from '/Users/akashbalaji/RO_Project/Frontend/components/DateContext2.tsx'; // Import useDate
+import { DateProvider, useDate } from '/Users/akashbalaji/RO_Project/Frontend/components/AttendanceDate'; // Import useDate
+import { DateProvider2, useDate2 } from '/Users/akashbalaji/RO_Project/Frontend/components/SalCalcDate'; // Import useDate
 
 
 import Payroll from './screens/Payroll';
@@ -18,13 +18,13 @@ import SalCalc from './screens/SalCalc';
 import Ledger from './screens/Ledger'
 
 export type RootStackParamList = {
-  Sales: undefined;
-  Payroll: undefined;
-  Home: undefined;
-  Credits: undefined;
-  SalAdv: undefined;
-  SalCalc: undefined;
-  Ledger: undefined;
+    Sales: undefined;
+    Payroll: undefined;
+    Home: undefined;
+    Credits: undefined;
+    SalAdv: undefined;
+    SalCalc: undefined;
+    Ledger: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -40,117 +40,118 @@ function App() {
 
     return (
         <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen
-            name="Home"
-            component={Home}
-            options={{
-                title: "Hello P2B Fuels",
-                headerTitleStyle: { fontWeight: "400", fontFamily: "Poppins", fontSize: 20 },
-                headerStyle: {
-                backgroundColor: '#D7FCF1',
-                },
-                headerRight: () => (
-                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                    <Evillcons
-                    name="bell"
-                    size={35}
-                    color="black"
-                    style={{ marginRight: 5, paddingTop: 10 }}
-                    />
-                    <Image
-                    source={require('./images/test1.jpeg')}
-                    style={styles.Image_style}
-                    />
-                </View>
-                ),
-            }}
-            />
-            <Stack.Screen name="Sales" component={Sales} />
-            <Stack.Screen name="Credits" component={Credits} />
-            <Stack.Screen
-            name="Payroll"
-            component={Payroll}
-            options={{
-                title: "Attendance",
-                headerTitleStyle: { color: 'orange' },
-                headerStyle: {
-                backgroundColor: '#D7FCF1',
-                },
-                headerRight: () => (
-                <View style={{ marginRight: 10 }}>
-                    <TouchableOpacity style={styles.Btn_card} onPress={() => setOpen(true)}>
-                    <Text style={styles.BtnText}>{formattedDate}</Text>
-                    </TouchableOpacity>
-                    <DatePicker
-                    modal
-                    mode="date"
-                    open={open}
-                    date={date}
-                    onConfirm={(selectedDate) => {
-                        setOpen(false);
-                        setDate(selectedDate);
+            <Stack.Navigator initialRouteName="Home">
+                <Stack.Screen
+                    name="Home"
+                    component={Home}
+                    options={{
+                        title: "Hello P2B Fuels",
+                        headerTitleStyle: { fontWeight: "400", fontFamily: "Poppins", fontSize: 20 },
+                        headerStyle: {
+                        backgroundColor: '#D7FCF1',
+                        },
+                        headerRight: () => (
+                            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                                <Evillcons
+                                    name="bell"
+                                    size={35}
+                                    color="black"
+                                    style={{ marginRight: 5, paddingTop: 10 }}
+                                />
+                                <Image
+                                    source={require('./images/test1.jpeg')}
+                                    style={styles.Image_style}
+                                />
+                            </View>
+                        ),
                     }}
-                    onCancel={() => {
-                        setOpen(false);
-                    }}
-                    />
-                </View>
-                ),
-            }}
-            />
-            <Stack.Screen 
-            name="SalAdv" 
-            component={SalAdv} 
-            options={{
-                title: "Salary Advance",
-                headerTitleStyle: { color: 'orange' },
-                headerStyle: {
-                backgroundColor: '#D7FCF1',
-                }}}
-            />
-            <Stack.Screen 
-            name="SalCalc" 
-            component={SalCalc} 
-            options={{
-                title: "Salary Calculation",
-                headerTitleStyle: { color: 'orange' },
-                headerStyle: {
-                backgroundColor: '#D7FCF1',
-                },
-                headerRight: () => (
-                    <View style={{ marginRight: 10 }}>
-                        <TouchableOpacity style={styles.Btn_card} onPress={() => setOpen2(true)}>
-                        <Text style={styles.BtnText}>{formattedDate2}</Text>
-                        </TouchableOpacity>
-                        <DatePicker
-                        modal
-                        mode="date"
-                        open={open2}
-                        date={date2}
-                        onConfirm={(selectedDate2) => {
-                            setOpen2(false);
-                            setDate2(selectedDate2);
-                        }}
-                        onCancel={() => {
-                            setOpen2(false);
-                        }}
-                        />
-                    </View>
-                ),
-            }}
-            />
-            <Stack.Screen 
-            name="Ledger" 
-            component={Ledger} 
-            options={{
-                title: "Ledger",
-                headerTitleStyle: { color: 'orange' },
-                headerStyle: {
-                backgroundColor: '#D7FCF1',
-                }}}
-            />
-        </Stack.Navigator>
+                />
+
+                <Stack.Screen name="Sales" component={Sales} />
+                <Stack.Screen name="Credits" component={Credits} />
+                <Stack.Screen
+                name="Payroll"
+                component={Payroll}
+                options={{
+                    title: "Attendance",
+                    headerTitleStyle: { color: 'orange' },
+                    headerStyle: {
+                    backgroundColor: '#D7FCF1',
+                    },
+                    headerRight: () => (
+                        <View style={{ marginRight: 10 }}>
+                            <TouchableOpacity style={styles.Btn_card} onPress={() => setOpen(true)}>
+                            <Text style={styles.BtnText}>{formattedDate}</Text>
+                            </TouchableOpacity>
+                            <DatePicker
+                                modal
+                                mode="date"
+                                open={open}
+                                date={date}
+                                onConfirm={(selectedDate) => {
+                                    setOpen(false);
+                                    setDate(selectedDate);
+                                }}
+                                onCancel={() => {
+                                    setOpen(false);
+                                }}
+                            />
+                        </View>
+                    ),
+                }}
+                />
+                <Stack.Screen 
+                name="SalAdv" 
+                component={SalAdv} 
+                options={{
+                    title: "Salary Advance",
+                    headerTitleStyle: { color: 'orange' },
+                    headerStyle: {
+                    backgroundColor: '#D7FCF1',
+                    }}}
+                />
+                <Stack.Screen 
+                name="SalCalc" 
+                component={SalCalc} 
+                options={{
+                    title: "Salary Calculation",
+                    headerTitleStyle: { color: 'orange' },
+                    headerStyle: {
+                    backgroundColor: '#D7FCF1',
+                    },
+                    headerRight: () => (
+                        <View style={{ marginRight: 10 }}>
+                            <TouchableOpacity style={styles.Btn_card} onPress={() => setOpen2(true)}>
+                                <Text style={styles.BtnText}>{formattedDate2}</Text>
+                            </TouchableOpacity>
+                            <DatePicker
+                                modal
+                                mode="date"
+                                open={open2}
+                                date={date2}
+                                onConfirm={(selectedDate2) => {
+                                    setOpen2(false);
+                                    setDate2(selectedDate2);
+                                }}
+                                onCancel={() => {
+                                    setOpen2(false);
+                                }}
+                                />
+                        </View>
+                    ),
+                }}
+                />
+                <Stack.Screen 
+                name="Ledger" 
+                component={Ledger} 
+                options={{
+                    title: "Ledger",
+                    headerTitleStyle: { color: 'orange' },
+                    headerStyle: {
+                    backgroundColor: '#D7FCF1',
+                    }}}
+                />
+            </Stack.Navigator>
         </NavigationContainer>
     );
 }
@@ -181,12 +182,12 @@ const styles = StyleSheet.create({
 });
 
 export default function AppWrapper() {
-  return (
-    <DateProvider>
-      <DateProvider2>
-        <App />
-      </DateProvider2>
-    </DateProvider>
-    
-  );
+    return (
+        <DateProvider>
+        <DateProvider2>
+            <App />
+        </DateProvider2>
+        </DateProvider>
+        
+    );
 }

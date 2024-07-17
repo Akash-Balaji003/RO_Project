@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
     Alert,
-    Button,
     SafeAreaView,
     ScrollView,
     StyleSheet,
@@ -20,7 +19,7 @@ import Octicons from 'react-native-vector-icons/Octicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Dropdown } from 'react-native-element-dropdown';
 import { RadioButtonProps, RadioGroup } from 'react-native-radio-buttons-group';
-import { useDate2 } from '../components/DateContext2';
+import { useDate2 } from '../components/SalCalcDate';
 import { format, getDaysInMonth } from 'date-fns';
 
 type SalCalcProps = NativeStackScreenProps<RootStackParamList, 'SalCalc'> 
@@ -37,16 +36,16 @@ const SalCalc = ({navigation}:SalCalcProps) => {
     const year = format(date2, 'yyyy');
     const month = format(date2, 'MM');
     const daysInMonth = getDaysInMonth(new Date(parseInt(year), parseInt(month) - 1));
-    const [Working_days, setWorking_days] = useState<number | undefined>(undefined);
 
     const [value, setValue] = useState<string | null>(null);
     const [dropdownData, setDropdownData] = useState<ItemType[]>([]);
     const [selectCom, setselectCom] = useState<string | undefined>();
-    const [number, onChangeNumber] = React.useState('');
+    const [OtherBonus, onChangeOtherBonus] = React.useState('');
     const [Recnumber, onChangeRecNumber] = React.useState('');
     const [text, onChangeText] = React.useState('');
 
     const [due, setDue] = useState<number | undefined>(undefined);
+    const [actualDue, setactualDue] = useState<number | undefined>(undefined);
     const [Att, setAtt] = useState<number | undefined>(undefined);
     const [Daily_wage, setDaily_wage] = useState<number | undefined>(undefined);
     const [BasicPerMonth, setBasicPerMonth] = useState<number | undefined>(undefined);
@@ -55,6 +54,8 @@ const SalCalc = ({navigation}:SalCalcProps) => {
     const [NoLeaveBonus, setNoLeaveBonus] = useState<number | undefined>(undefined);
     const [Tot_sal, setTot_sal] =  useState<number | undefined>(undefined);
     const [Sal_to_give, setSal_to_give] =  useState<number | undefined>(undefined);
+
+    const [existingPayroll, setExistingPayroll] = useState<boolean>(false);
 
     const selectedEmployee = dropdownData.find((item) => item.value === value);
 
@@ -133,11 +134,15 @@ const SalCalc = ({navigation}:SalCalcProps) => {
                     console.log('BATA:', data.data.BATA);
                     console.log('DA_Percentage:', data.data.DA_Percentage);
                     console.log('No_Leave_Bonus:', data.data.No_Leave_Bonus);
+                    console.log('NLB_Threshold:', data.data.NLB_Threshold);
+
                     const BPM_inp = data.data.Basic_Per_Month;
                     const Att_code = data.data.Total_Attendance;
                     const Bata_inp = data.data.BATA;
                     const NLB_inp = data.data.No_Leave_Bonus;
                     const DA_inp = data.data.DA_Percentage;
+                    const NLB_Threshold_inp = data.data.NLB_Threshold;
+
                     if(data.data.Basic_Per_Month != 0){
                         const Wage = ((BPM_inp / daysInMonth)*Att_code) ;
                         setDaily_wage(Math.round(Wage));
@@ -151,7 +156,12 @@ const SalCalc = ({navigation}:SalCalcProps) => {
                     setAtt(Att_code);
                     setBasicPerMonth(BPM_inp);
                     setBata(Bata_inp);
-                    setNoLeaveBonus(NLB_inp);
+
+                    if((Att_code/daysInMonth)*100 >= NLB_Threshold_inp ){
+                        setNoLeaveBonus(NLB_inp);
+                    } else{
+                        setNoLeaveBonus(0);
+                    }
 
                 } else {
                     console.error('Received data is not in the expected format:', data);
@@ -168,16 +178,116 @@ const SalCalc = ({navigation}:SalCalcProps) => {
     }, [selectedEmployee, date2]);
 
     useEffect(() => {
-        const otherBonus = parseFloat(number) || 0;
+        const otherBonus = parseFloat(OtherBonus) || 0;
         const totalSalary = (NoLeaveBonus || 0) + (Bata || 0) + (DA_amt || 0) + (Daily_wage || 0) + otherBonus;
         setTot_sal(totalSalary);
-    }, [NoLeaveBonus, Bata, DA_amt, Daily_wage, number]);
+    }, [NoLeaveBonus, Bata, DA_amt, Daily_wage, OtherBonus]);
 
     useEffect(() => {
         const recNumber = parseFloat(Recnumber) || 0;
         const endSalary = (Tot_sal || 0) - (Bata || 0) - recNumber;
         setSal_to_give(endSalary);
     }, [Tot_sal, Bata, Recnumber]);
+
+    const submitData = async () => {
+        try {
+            const currentDate = new Date().toISOString().split('T')[0];
+            const calculatedActualDue = Number(due) - (Number(Recnumber) || 0);
+            setactualDue(calculatedActualDue);
+            console.log('ActualDue:', actualDue)
+            const employeeData = {
+                Emp_id: Number(selectedEmployee?.value),
+                Company_id: 101,
+                Debit: 0,
+                Credit: Recnumber,
+                Description: text ?? "P2B Fuels Salary",
+                submitted_date: currentDate,
+                MOP: selectCom,
+                Txn_date: currentDate,
+                actual_due: actualDue ?? 0.0
+            };
+            const viewData = {
+                Emp_id: Number(selectedEmployee?.value),
+                Company_id: 101,
+                Days_worked: Att,
+                Wage: Daily_wage,
+                DA_Amount: DA_amt,
+                Salary: Sal_to_give,
+                No_Leave_Bonus: NoLeaveBonus,
+                Recovery: Recnumber,
+                OtherBonus: OtherBonus,
+                BATA: Bata,
+                Description: text ?? "P2B Fuels Salary",
+                Salary_date: currentDate,
+                MOP: selectCom,
+                Due: due ?? 0.0
+            };
+
+            const response = await fetch('https://hchjn6x7-8000.inc1.devtunnels.ms/Txn-sal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(employeeData),
+            });
+
+            const response2 = await fetch('https://hchjn6x7-8000.inc1.devtunnels.ms/Payroll', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(viewData),
+            });
+
+            if (response2.ok && response.ok) {
+                const json2 = await response2.json();
+                const json = await response.json();
+                console.log('Response from server:', json2);
+                console.log('Response from server:', json);
+                Alert.alert('Success', 'Data submitted successfully');
+            } else {
+                throw new Error('Failed to submit data');
+            }
+        } catch (error) {
+            console.error('Error submitting data:', error);
+            Alert.alert('Error', 'Error submitting data');
+        }
+    };
+
+    const fetchPayrollData = async () => {
+        if (!selectedEmployee) return;
+
+        try {
+            const response = await fetch(`https://hchjn6x7-8000.inc1.devtunnels.ms/get-payroll?empId=${selectedEmployee.value}&date=${formattedDate}`);
+            const data = await response.json();
+
+            if (data) {
+                setExistingPayroll(true);
+                setDaily_wage(data.Wage);
+                setDA_amt(data.DA_Amount);
+                setNoLeaveBonus(data.No_Leave_Bonus);
+                setBata(data.BATA);
+                onChangeOtherBonus(data.OtherBonus?.toString() || '');
+                onChangeRecNumber(data.Recovery?.toString() || '');
+                setAtt(data.Days_worked);
+                setTot_sal(data.Salary);
+                const Salary_to_be_paid = (data.Salary - data.BATA - data.Recovery);
+                setSal_to_give(Salary_to_be_paid);
+                onChangeText(data.Description || 'P2B Fuels Salary');
+                setselectCom(data.MOP);
+                setDue(data.Due);
+            } else{
+                setExistingPayroll(false);
+            }
+        } catch (error) {
+            console.error('Error fetching payroll data:', error);
+            Alert.alert('Error', 'Failed to fetch payroll data. Try again later.');
+        }
+    };
+
+    useEffect(() => {
+        fetchPayrollData();
+    }, [selectedEmployee, formattedDate]);
 
     const Comments: RadioButtonProps[] = useMemo(() => ([
         {
@@ -186,9 +296,9 @@ const SalCalc = ({navigation}:SalCalcProps) => {
             value: 'option1'
         },
         {
-        id: 'Online', // acts as primary key, should be unique and non-empty string
-        label: 'Online',
-        value: 'option2'
+            id: 'Online', // acts as primary key, should be unique and non-empty string
+            label: 'Online',
+            value: 'option2'
         }
     ]), []);
   
@@ -271,14 +381,14 @@ const SalCalc = ({navigation}:SalCalcProps) => {
                             <View style={[styles.rowEntry,{gap:39}]}>
                                 <Text style={[styles.displayText,{color:'black'}]}>Other Bonus</Text>
                                 <TextInput
-                                style={{color:'black', height: 30, width:150, borderBlockColor:'grey', borderRadius:5, borderWidth:1, fontSize:18, paddingBottom:1}}
-                                onChangeText={onChangeNumber}
-                                value={number}
-                                placeholderTextColor='black'
-                                textAlign='right'
-                                placeholder="1000"
-                                keyboardType="numeric"
-                            />
+                                    style={{color:'black', height: 30, width:150, borderBlockColor:'grey', borderRadius:5, borderWidth:1, fontSize:18, paddingBottom:1}}
+                                    onChangeText={onChangeOtherBonus}
+                                    value={OtherBonus}
+                                    placeholderTextColor='black'
+                                    textAlign='right'
+                                    placeholder="1000"
+                                    keyboardType="numeric"
+                                />
                             </View>
                             <View style={[styles.rowEntry,{gap:42}]}>
                                 <Text style={styles.displayText}>Total Salary</Text>
@@ -336,7 +446,7 @@ const SalCalc = ({navigation}:SalCalcProps) => {
                         <TouchableOpacity style={styles.cardviewBtnEdit} onPress={()=>onPressButton("Edit")}>
                             <Text style={styles.BtnText}>Edit</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.cardviewBtnSubmit} onPress={()=>onPressButton("Submit")}>
+                        <TouchableOpacity style={styles.cardviewBtnSubmit} onPress={submitData}>
                             <Text style={styles.BtnText}>Submit</Text>
                         </TouchableOpacity>
                     </View>

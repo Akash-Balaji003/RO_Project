@@ -10,9 +10,10 @@ import {
   Alert,
 } from 'react-native';
 
-import Footer1 from '/Users/akashbalaji/RO_Project/Frontend/components/Footer.tsx';
+import Footer1 from '/Users/akashbalaji/RO_Project/Frontend/components/FooterHome';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
+import FooterHome from '/Users/akashbalaji/RO_Project/Frontend/components/FooterHome';
 
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'> 
@@ -21,7 +22,7 @@ type HomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>
 const Home = ({navigation}:HomeProps) => {
 
     function onPressButton() {
-        Alert.alert('You tapped a card!');
+        Alert.alert('Work in progress...');
     }
     
   return(
@@ -35,14 +36,17 @@ const Home = ({navigation}:HomeProps) => {
                                 <Text style={styles.cardTitle}>Payroll</Text>
                                 <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image}/>
                             </TouchableOpacity>
+
                             <TouchableOpacity onPress={()=>navigation.navigate("Sales")} style={styles.cardview}>
                                 <Text style={styles.cardTitle}>Sales</Text>
                                 <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
                             </TouchableOpacity>
+
                         </View>
 
 
                         <View style={[styles.rowContainer, {marginTop:15}]}>
+
                             <TouchableOpacity onPress={()=>navigation.navigate("Credits")} style={styles.cardview}>
                                 <Text style={styles.cardTitle}>Credits</Text>
                                 <Image source={require('/Users/akashbalaji/RO_Project/Frontend/images/wave_L2.png')} resizeMode="cover" style={styles.image} />
@@ -101,7 +105,7 @@ const Home = ({navigation}:HomeProps) => {
 
                     </View>
                 </ScrollView>
-                <Footer1/>
+                <FooterHome/>
             </View>
         </SafeAreaView>
     )
@@ -109,7 +113,7 @@ const Home = ({navigation}:HomeProps) => {
 
 const styles = StyleSheet.create({
 
-  Title: {
+Title: {
     color: 'black',
     fontSize: 24,
     textAlign: 'center',
@@ -118,7 +122,7 @@ const styles = StyleSheet.create({
 
   },
 
-  image: {
+image: {
     width: 155,
     flex:1,
     borderRadius: 17,
@@ -128,13 +132,13 @@ const styles = StyleSheet.create({
   },
 
 cardTitle:{
-  textAlign: 'center',
-  justifyContent: 'center',
-  color: 'black',
-  fontFamily: 'poppins',
-  fontSize: 19,
-  gap: 10,
-  marginTop: 12,
+    textAlign: 'center',
+    justifyContent: 'center',
+    color: 'black',
+    fontFamily: 'poppins',
+    fontSize: 19,
+    gap: 10,
+    marginTop: 12,
 },
 
 cardview:{
@@ -145,28 +149,28 @@ cardview:{
 },
 
 verticalContainer:{
-  display: 'flex',
-  width: 318,
-  height: 870,
-  backgroundColor: '#D7FCF1',
-  marginTop: 15,
-  marginLeft: 21
+    display: 'flex',
+    width: 318,
+    height: 870,
+    backgroundColor: '#D7FCF1',
+    marginTop: 15,
+    marginLeft: 21
 },
 
 rowContainer:{
-  flexDirection: 'row',
-  height: 129,
-  width:318,
-  gap: 9,
-  justifyContent: 'center',
+    flexDirection: 'row',
+    height: 129,
+    width:318,
+    gap: 9,
+    justifyContent: 'center',
 },
 
-  homeScreen:{
+homeScreen:{
     width: 360,
     height: 800
-  },
+},
 
-  navbarHeader:{
+navbarHeader:{
     flexDirection: 'row',
     backgroundColor: '#D7FCF1',
     width: 360,
@@ -174,11 +178,11 @@ rowContainer:{
     elevation: 8,
     justifyContent: 'flex-start',
     alignItems: 'center'
-  },
+},
 
-  bg1: {
+bg1: {
     backgroundColor: '#D7FCF1'
-  }
+}
 });
 
 export default Home;

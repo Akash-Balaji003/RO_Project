@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { RootStackParamList } from '../App';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDate } from '../components/DateContext';
+import { useDate } from '../components/AttendanceDate';
 import { format } from 'date-fns';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -52,6 +52,7 @@ type Employee = {
 };
 
 const Payroll = ({ navigation }: PayrollProps) => {
+
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(true); // Loader state
     const { date } = useDate();
@@ -173,6 +174,7 @@ const Payroll = ({ navigation }: PayrollProps) => {
     
     const submitData = async () => {
         const currentDate = new Date().toISOString().split('T')[0];
+
         const employeeData = employees.map(emp => ({
             Emp_id: emp.emp_id,
             Emp_name: emp.emp_name,
@@ -239,12 +241,12 @@ const Payroll = ({ navigation }: PayrollProps) => {
         setEmployees(prevEmployees =>
             prevEmployees.map(emp =>
                 emp.emp_id === Emp_id
-                    ? {
-                          ...emp,
-                          iconPM: emp.iconPM === 'square' ? 'check-square' : 'square',
-                          tickColor: emp.iconPM === 'square' || emp.iconAM === 'check-square' ? 'green' : 'grey',
-                          crossColor: 'grey',
-                      }
+                        ?{
+                            ...emp,
+                            iconPM: emp.iconPM === 'square' ? 'check-square' : 'square',
+                            tickColor: emp.iconPM === 'square' || emp.iconAM === 'check-square' ? 'green' : 'grey',
+                            crossColor: 'grey',
+                        }
                     : emp
             )
         );
@@ -254,14 +256,14 @@ const Payroll = ({ navigation }: PayrollProps) => {
         setEmployees(prevEmployees =>
             prevEmployees.map(emp =>
                 emp.emp_id === Emp_id
-                    ? {
-                          ...emp,
-                          tickColor: emp.tickColor === 'grey' ? 'green' : 'grey',
-                          crossColor: 'grey',
-                          iconAM: emp.tickColor === 'grey' ? 'check-square' : 'square',
-                          iconPM: emp.tickColor === 'grey' ? 'check-square' : 'square',
-                          iconsVisible: !emp.iconsVisible,
-                      }
+                        ?{
+                            ...emp,
+                            tickColor: emp.tickColor === 'grey' ? 'green' : 'grey',
+                            crossColor: 'grey',
+                            iconAM: emp.tickColor === 'grey' ? 'check-square' : 'square',
+                            iconPM: emp.tickColor === 'grey' ? 'check-square' : 'square',
+                            iconsVisible: !emp.iconsVisible,
+                        }
                     : emp
             )
         );
@@ -288,10 +290,10 @@ const Payroll = ({ navigation }: PayrollProps) => {
         setEmployees(prevEmployees =>
             prevEmployees.map(emp =>
                 emp.emp_id === Emp_id
-                    ? {
-                          ...emp,
-                          iconAM_OT: emp.iconAM_OT === 'square' ? 'check-square' : 'square',
-                      }
+                        ?{
+                            ...emp,
+                            iconAM_OT: emp.iconAM_OT === 'square' ? 'check-square' : 'square',
+                        }
                     : emp
             )
         );

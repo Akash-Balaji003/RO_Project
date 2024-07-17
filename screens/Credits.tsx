@@ -15,7 +15,6 @@ const Credits = ({navigation}:CreditsProps) => {
         <View>
             <Button title='Back' onPress={()=>navigation.goBack()}/>
             <Text style={{color:'black', textAlign:'center'}}>what</Text>
-            
         </View>
     )
 }
